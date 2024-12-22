@@ -1,0 +1,170 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: black;
+    overscroll-behavior-y: none;
+    height: 100%; 
+}
+
+.button {
+    display: flex;
+    justify-content: center;
+    background: rgb(192, 192, 192);
+    height: 18px;
+    width: 17px;
+    box-shadow: -2px -2px #e0dede, -2px 0 #e0dede, 0 -2px #e0dede, -4px -4px white, -4px 0 white, 0 -4px white, 2px 2px #818181, 0 2px #818181, 2px 0 #818181, 2px -2px #e0dede, -2px 2px #818181, -4px 2px white, -4px 4px black, 4px 4px black, 4px 0 black, 0 4px black, 2px -4px white, 4px -4px black;
+}
+
+.button:active {
+    box-shadow: -2px -2px #818181, -2px 0 #818181, 0 -2px #818181, -4px -4px black, -4px 0 black, 0 -4px black, 2px 2px #e0dede, 0 2px #e0dede, 2px 0 #e0dede,  2px -2px #818181, -2px 2px #e0dede, -4px 2px black, -4px 4px white, 4px 4px white, 4px 0 white, 0 4px white, 2px -4px black, 4px -4px white;
+}
+
+.button-group {
+    padding-right: 6px;
+    display: flex;
+    gap: 10px;
+}
+
+.close::before,
+.close::after {
+    position: absolute;
+    top: 15px;
+    content: "";
+    width: 12px;
+    height: 2.5px;
+    background-color: black;
+    transform-origin: center;
+}
+
+.close::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.close::after {
+    transform: translate(-50%, -50%) rotate(-45deg); 
+}
+
+@font-face {
+    font-family: 'Chicago';
+    src: url('fonts/ChicagoFLF.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+.container {
+    position: relative;
+    justify-content: center;
+    min-height: 100vh; 
+    width: calc(100vh * (4 / 3)); 
+    max-width: 100vw; 
+    background-color: rgb(224, 224, 224);
+    left: 50%;
+    transform: translate(-50%, 0);
+}
+
+.p-text {
+    font-family: JetBrains Mono, monospace;
+    font-size: 16px;
+}
+
+.navbar {
+    position: sticky;
+    height: 30px;
+    width: calc(100vh * (4 / 3)); 
+    top: 0;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: rgb(192, 192, 192);
+    border-bottom: 2.5px solid #818181;
+    box-shadow: 0 2px 0 black;
+    display: flex;
+    align-items: center;
+    z-index: 3;
+}
+
+.navbar a {
+    float: left;
+    text-align: center;
+    padding: 5px 10px;
+    font-size: 16px;
+    color: black;
+    font-family: 'Chicago';
+}
+
+.navbar a:visited {
+    color: black;
+}
+
+.navbar a:hover {
+    color: white;
+    background-color: #212a8c;
+}
+
+.navbar a:active {
+    color: white;
+}
+
+.no-scroll {
+    overflow: hidden;
+}
+
+.minimize {
+    background-color: black;
+    height: 3px;
+    width: 10px;
+    transform: translateY(12px);
+}
+
+.full-screen-1 {
+    position: fixed;
+    background-color: rgb(192, 192, 192);
+    border-top: 3px solid black;
+    border-right: 2px solid black;
+    border-left: 2px solid black;
+    border-bottom: 2px solid black;
+    height: 5px;
+    width: 6px;
+    transform: translate(-2px, 6px);
+    z-index: 2;
+}
+
+.full-screen-2 {
+    background-color: rgb(192, 192, 192);
+    border-top: 3px solid black;
+    border-right: 2px solid black;
+    border-left: 2px solid black;
+    border-bottom: 2px solid black;
+    height: 5px;
+    width: 6px;
+    transform: translate(2px, 2px);
+    z-index: 1;
+}
+
+.sectionheader {
+    padding: 20px 20px;
+    font-size: 25px;
+    color: black;
+    font-family: 'Chicago';
+}
+
+.image_panel {
+    width: 480px;
+    height: 360px;
+}
+
+.audio_panel {
+    width: 480px;
+    height: 360px;
+    background: red;
+}
+
+.video_panel {
+    width: 480px;
+    height: 360px;
+}
+
+.image_panel img {
+    width: 100%;
+    height: 100%;
+}

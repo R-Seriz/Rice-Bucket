@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rice Bucket</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+
+<body>
+
+
+    <div class="navbar">
+        <a href="{{ url_for('home') }}" style="text-decoration:none">Home</a>
+        <a href="{{ url_for('about') }}" style="text-decoration:none">About</a>
+        <a href="{{ url_for('upload') }}" style="text-decoration:none">Upload</a>
+        <a class="active" href="{{ url_for('directory') }}" style="text-decoration:none">Directory</a>
+        <a href="{{ url_for('settings') }}" style="text-decoration:none">Settings</a>
+    </div>
+
+    <div class="container">
+        <div class="sectionheader">Directory</div>
+
+        <table id='database'>
+            <tr>
+                <td>Id</td>
+                <td>Author/s</td>
+                <td>Creation Date</td>
+                <td>Filename</td>
+                <td class="table-center">Approve</td>
+                <td class="table-center">Delete</td>
+            </tr>
+            {% for row in files %}
+            <tr>
+                <td>{{ row.id }}</td>
+                <td>{{ row.author }}</td>
+                <td>{{ row.created_at }}</td>
+                <td><a href="download/{{ row.filename }}">{{ row.filename }}</a></td>
+                {% if row.approved %}
+                <td class="center-buttons"><button class="approve-button approved"
+                    onclick="window.location.href='/approve/{{ row.id }}'"></button></td>
+                {% else %}
+                <td class="center-buttons"><button class="approve-button not-approved"
+                    onclick="window.location.href='/approve/{{ row.id }}'"></button></td>
+                {% endif %}
+                
+                <td class="center-buttons"><button class="delete-button"
+                        onclick="window.location.href='delete/{{ row.id }}'"></button></td>
+            </tr>
+            {% endfor %}
+        </table>
+
+    </div>
+
+
+
+</body>
+
+<style>
+    #database {
+        width: 100%;
+        padding: 20px;
+        font-family: 'Chicago';
+    }
+
+    .delete-button,
+    .approve-button {
+        font-family: 'Chicago';
+        border-radius: 0;
+        border: none;
+        background: none;
+        height: 10px;
+        width: 10px;
+        margin: 0 50%;
+        transform: translateX(-50%);
+    }
+
+    .approved {
+        box-shadow: -2px -2px #e0dede, -2px 0 #e0dede, 0 -2px #e0dede, -4px -4px white, -4px 0 white, 0 -4px white, 2px 2px #818181, 0 2px #818181, 2px 0 #818181, 2px -2px #e0dede, -2px 2px #818181, -4px 2px white, -4px 4px black, 4px 4px black, 4px 0 black, 0 4px black, 2px -4px white, 4px -4px black;
+        background-color: green;
+    }
+
+    .not-approved {
+        box-shadow: -2px -2px #e0dede, -2px 0 #e0dede, 0 -2px #e0dede, -4px -4px white, -4px 0 white, 0 -4px white, 2px 2px #818181, 0 2px #818181, 2px 0 #818181, 2px -2px #e0dede, -2px 2px #818181, -4px 2px white, -4px 4px black, 4px 4px black, 4px 0 black, 0 4px black, 2px -4px white, 4px -4px black;
+        background-color: red;
+    }
+
+    .delete-button {
+        box-shadow: -2px -2px #e0dede, -2px 0 #e0dede, 0 -2px #e0dede, -4px -4px white, -4px 0 white, 0 -4px white, 2px 2px #818181, 0 2px #818181, 2px 0 #818181, 2px -2px #e0dede, -2px 2px #818181, -4px 2px white, -4px 4px black, 4px 4px black, 4px 0 black, 0 4px black, 2px -4px white, 4px -4px black;
+    }
+
+    .table-center {
+        text-align: center;
+    }
+</style>
+
+</html>
