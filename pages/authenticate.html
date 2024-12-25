@@ -13,11 +13,10 @@
         <a href="{{ url_for('about') }}" style="text-decoration:none">About</a>
         <a class="active" href="{{ url_for('upload') }}" style="text-decoration:none">Upload</a>
         <a href="{{ url_for('directory') }}" style="text-decoration:none">Directory</a>
-        <a href="{{ url_for('settings') }}" style="text-decoration:none">Settings</a>
     </div>
 
     <div class="container">
-        <div id="MemberID">Member ID</div>
+        <div id="MemberID">ENTER MEMBER ID</div>
         <form id="login" method=post>
             <input class="login" type="PASSWORD" placeholder="" name="memberid" autocomplete="off">
         </form>
@@ -33,11 +32,14 @@
         left: 50%;
         transform: translate(-50%, -50%);
         text-align: center;
-        background-color: white;
+        background-color: rgb(240, 240, 240);
         font-size: 16px;
         font-family: JetBrains Mono, monospace;
         outline: none;
-        border: 1.5px solid #818181;
+        border-top: 1.5px solid #818181;
+        border-bottom: 1.5px solid white;
+        border-left: 1.5px solid #818181;
+        border-right: 1.5px solid white;
         color: black;
     }
 

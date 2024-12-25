@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 import os
 import datetime
+import argparse
 
 UPLOAD_FOLDER = './uploads'
 TEMPLATE_FOLDER = './pages'
@@ -35,6 +36,19 @@ class FileEntry(db.Model):
     def __repr__(self):
         return f'<FileEntry {self.filename}>'
 
+
+class CommentEntry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    fileentry_id = db.Column(db.Integer, nullable=False)
+    author = db.Column(db.String(100), nullable=False)
+    text = db.Column(db.String(500), nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True),
+                           server_default=func.now())
+
+    def __repr__(self):
+        return f'<CommentEntry {self.id}>'
+
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -44,13 +58,11 @@ def allowed_file(filename):
 def home():
     return render_template('home.html')
 
+
 @app.route('/about')
 def about():
-    return render_template('about.html', family_photos=os.listdir('./static/assets/family'))
+    return render_template('about.html', family_photos=[a for a in os.listdir('./static/assets/family') if a.split('.')[-1].upper() == 'JPG'])
 
-@app.route('/settings')
-def settings():
-    return render_template('settings.html')
 
 @app.route('/directory')
 def directory():
@@ -111,6 +123,16 @@ def approve(id):
     return render_template('directory.html', files=FileEntry.query.all())
 
 
+@app.route('/comment', methods=['POST'])
+def postComment():
+    db.session.add(CommentEntry(author=request.form['author'], text=request.form['text'], fileentry_id=request.form['postid']))
+    db.session.commit()
+    return "OK"
+
+@app.route('/comment/<int:id>', methods=['GET'])
+def listComment(id):
+    return jsonify([{'id': row.id, 'author':row.author, 'text':row.text, 'created_at':row.created_at} for row in CommentEntry.query.filter(CommentEntry.fileentry_id == id)])
+
 @app.route('/dbjson')
 def dbjson():
     return jsonify([{'id': x.id, 'approved':x.approved, 'creation_date': x.created_at, 'project_year':x.project_year, 'project_month':x.project_month, 'author': x.author, 'title':x.title, 'description':x.description, 'filename': x.filename} for x in FileEntry.query.all()])
@@ -122,4 +144,12 @@ def lost(e):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=3000, host='0.0.0.0')
+    parser = argparse.ArgumentParser("RBSite App")
+    parser.add_argument("prod", help="An integer specifying to run in production (1 for yes, 0 for no)", type=int)
+    args = parser.parse_args()
+    if args.prod:
+        from waitress import serve
+        print("Started running production thing")
+        serve(app, host="0.0.0.0", port=80)
+    else:
+        app.run(debug=True, port=3000, host='0.0.0.0')

@@ -15,7 +15,6 @@
         <a href="{{ url_for('about') }}" style="text-decoration:none">About</a>
         <a href="{{ url_for('upload') }}" style="text-decoration:none">Upload</a>
         <a class="active" href="{{ url_for('directory') }}" style="text-decoration:none">Directory</a>
-        <a href="{{ url_for('settings') }}" style="text-decoration:none">Settings</a>
     </div>
 
     <div class="container">
@@ -27,8 +26,8 @@
                 <td>Author/s</td>
                 <td>Creation Date</td>
                 <td>Filename</td>
-                <td class="table-center">Approve</td>
-                <td class="table-center">Delete</td>
+                <td class="text-center">Approve</td>
+                <td class="text-center">Delete</td>
             </tr>
             {% for row in files %}
             <tr>
@@ -37,15 +36,19 @@
                 <td>{{ row.created_at }}</td>
                 <td><a href="download/{{ row.filename }}">{{ row.filename }}</a></td>
                 {% if row.approved %}
-                <td class="center-buttons"><button class="approve-button approved"
-                    onclick="window.location.href='/approve/{{ row.id }}'"></button></td>
+                <td><button class="approve-button approved" onclick="window.location.href='/approve/{{ row.id }}'">
+                </button></td>
                 {% else %}
-                <td class="center-buttons"><button class="approve-button not-approved"
-                    onclick="window.location.href='/approve/{{ row.id }}'"></button></td>
+                <td><button class="approve-button not-approved"
+                        onclick="window.location.href='/approve/{{ row.id }}'">
+                        <div id="approved-symbol-1"></div>
+                        <div id="approved-symbol-2"></div>
+                    </button></td>
                 {% endif %}
-                
-                <td class="center-buttons"><button class="delete-button"
-                        onclick="window.location.href='delete/{{ row.id }}'"></button></td>
+
+                <td><button class="delete-button" onclick="window.location.href='delete/{{ row.id }}'">
+                    <div id="delete-symbol"></div>
+                </button></td>
             </tr>
             {% endfor %}
         </table>
@@ -63,33 +66,75 @@
         font-family: 'Chicago';
     }
 
+    #approved-symbol-1 {
+        position: absolute;
+        top: 5.5px;
+        left: 9px;
+        content: "";
+        width: 7px;
+        height: 2.5px;
+        background-color: green;
+        transform-origin: center;
+        transform: rotate(45deg);
+    }
+
+    #approved-symbol-2 {
+        position: absolute;
+        top: 4.5px;
+        left: 12px;
+        content: "";
+        width: 12px;
+        height: 2.5px;
+        background-color: green;
+        transform-origin: center;
+        transform: rotate(-40deg);
+    }
+
+    #delete-symbol::before,
+    #delete-symbol::after {
+        position: absolute;
+        top: 4px;
+        left: 11px;
+        content: "";
+        width: 12px;
+        height: 2.5px;
+        background-color: red;
+        transform-origin: center;
+    }
+
+    #delete-symbol::before {
+        transform: rotate(45deg);
+    }
+
+    #delete-symbol::after {
+        transform: rotate(-45deg); 
+    }
+
     .delete-button,
     .approve-button {
         font-family: 'Chicago';
         border-radius: 0;
         border: none;
         background: none;
-        height: 10px;
-        width: 10px;
+        height: 12px;
+        width: 35px;
         margin: 0 50%;
         transform: translateX(-50%);
     }
 
     .approved {
-        box-shadow: -2px -2px #e0dede, -2px 0 #e0dede, 0 -2px #e0dede, -4px -4px white, -4px 0 white, 0 -4px white, 2px 2px #818181, 0 2px #818181, 2px 0 #818181, 2px -2px #e0dede, -2px 2px #818181, -4px 2px white, -4px 4px black, 4px 4px black, 4px 0 black, 0 4px black, 2px -4px white, 4px -4px black;
-        background-color: green;
+        box-shadow: -2px -2px #818181, -2px 0 #818181, 0 -2px #818181, -4px -4px black, -4px 0 black, 0 -4px black, 2px 2px #e0dede, 0 2px #e0dede, 2px 0 #e0dede,  2px -2px #818181, -2px 2px #e0dede, -4px 2px black, -4px 4px white, 4px 4px white, 4px 0 white, 0 4px white, 2px -4px black, 4px -4px white;
     }
 
     .not-approved {
         box-shadow: -2px -2px #e0dede, -2px 0 #e0dede, 0 -2px #e0dede, -4px -4px white, -4px 0 white, 0 -4px white, 2px 2px #818181, 0 2px #818181, 2px 0 #818181, 2px -2px #e0dede, -2px 2px #818181, -4px 2px white, -4px 4px black, 4px 4px black, 4px 0 black, 0 4px black, 2px -4px white, 4px -4px black;
-        background-color: red;
     }
 
     .delete-button {
         box-shadow: -2px -2px #e0dede, -2px 0 #e0dede, 0 -2px #e0dede, -4px -4px white, -4px 0 white, 0 -4px white, 2px 2px #818181, 0 2px #818181, 2px 0 #818181, 2px -2px #e0dede, -2px 2px #818181, -4px 2px white, -4px 4px black, 4px 4px black, 4px 0 black, 0 4px black, 2px -4px white, 4px -4px black;
     }
 
-    .table-center {
+    .text-center {
         text-align: center;
     }
 </style>

@@ -18,8 +18,10 @@ class Panel {
         const p = new Panel(element,
             new THREE.Vector3(0, radius * Math.sin(theta), radius * Math.cos(theta)),
             scale,
-            new THREE.Vector3(0, 0, 0)
+            new THREE.Vector3(0, radius * Math.sin(theta) * 1.1, radius * Math.cos(theta) * 1.1)
         )
+        p.object.up.set(0, Math.sin(theta + Math.PI / 2), Math.cos(theta + Math.PI / 2));
+        p.object.lookAt(0, radius * Math.sin(theta) * 1.1, radius * Math.cos(theta) * 1.1);
         p.theta = theta;
         p.radius = radius;
         return p;
@@ -29,7 +31,8 @@ class Panel {
         this.theta = theta;
         this.radius = radius;
         this.object.position.set(0, radius * Math.sin(theta), radius * Math.cos(theta));
-        this.object.lookAt(this.orientationTargetPos.x, this.orientationTargetPos.y, this.orientationTargetPos.z);
+        // this.object.up.set(0, Math.sin(theta + Math.PI/2), Math.cos(theta + Math.PI/2));
+        // this.object.lookAt(this.orientationTargetPos.x, this.orientationTargetPos.y, this.orientationTargetPos.z);
     }
 }
 
@@ -58,7 +61,12 @@ class PanelRing {
     enablePanelFollow(panel) {
         const ring = this;
         panel.object.element.onpointerdown = function (event) {
-            console.log(camera.position);
+            // if following ring dont run following: 
+            if (this === activeRing)
+                return;
+            // console.log(camera.position);
+
+            activeRing = this;
 
             followActive = false;
             followRing.avel = ring.avel;
@@ -110,6 +118,7 @@ var rings = [];
 var globalTime = 0;
 var followActive = false;
 var followObjectTheta = 0;
+var activeRing = null;
 var followRing = new PanelRing(1, [document.createElement('div'), document.createElement('div')], Math.PI / 2, new THREE.Vector3(0, 0, 0));
 var cameraTarget = new THREE.Vector3(0, 0, 0);
 const globalTweenGroup = new TWEEN.Group();
@@ -155,19 +164,20 @@ function cameraFollow() {
 // Renderer click detection for resuming orbit controls
 CSSrenderer.domElement.onpointerdown = function (e) {
     if (document.elementFromPoint(e.clientX, e.clientY) === CSSrenderer.domElement) {
+        activeRing = null;
         followActive = false;
         controls.enableZoom = true;
     }
 }
 
 // Update when resized [kinda not working yet]
-parent.addEventListener( 'resize', onWindowResize, false );
-function onWindowResize(){
+parent.addEventListener('resize', onWindowResize, false);
+function onWindowResize() {
 
     camera.aspect = parent.offsetWidth / parent.offsetHeight;
     camera.updateProjectionMatrix();
 
-    renderer.setSize( parent.offsetWidth, parent.offsetHeight );
+    renderer.setSize(parent.offsetWidth, parent.offsetHeight);
 
 }
 
@@ -176,33 +186,128 @@ CSSrenderer.domElement.onwheel = function (e) {
     followObjectTheta += -e.deltaY / 1000.0;
 };
 
+
 // Panel makers
-function imagePanel(filename) {
+function imagePanel(entry) {
     const elem = document.createElement('div');
     elem.classList.add('image_panel');
-    elem.innerHTML = `<img src="download/${filename}">`;
+    elem.innerHTML =
+        `<div class="panelHeader">
+        ${entry['title']} by ${entry['author']}
+        <div style="padding: 1px" class="button-group">
+            <div style="scale: 0.65" class="button">
+                <div class="full-screen-1"></div>
+                <div class="full-screen-2"></div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="fileHeader">
+        <div class="WhiteBar"></div>
+        <div class="fileInfo" onmousedown="showInfoWindow('${entry['title']}', '${entry['author']}', ${entry['project_month']}, ${entry['project_year']}, '${entry['description']}')">Information</div>
+        <div class="fileComments" onmousedown="showCommentWindow(${entry[
+        'id']})">Comments</div>
+    </div>
+    <img src="download/${entry['filename']}">`;
     return elem;
 }
 
-function audioPanel(filename) {
+function audioPanel(entry) {
     const elem = document.createElement('div');
     elem.classList.add('audio_panel');
-    elem.innerHTML = `<audio controls><source src="download/${filename}" type="audio/mpeg"></audio>`
+    elem.innerHTML =
+        `<div class="panelHeader">
+        [Project Title] by [Author/s]
+        <div style="padding: 1px" class="button-group">
+            <div style="scale: 0.65" class="button">
+                <div class="full-screen-1"></div>
+                <div class="full-screen-2"></div>
+            </div>
+        </div>
+    </div>
+    <div class="fileHeader">
+        <div class="WhiteBar"></div>
+        <div class="fileInfo">Information</div>
+        <div class="fileComments">Comments</div>
+    </div>
+    <div class="audioContainer">
+        <audio id="audioElement" src="download/${entry['filename']}" preload="auto"></audio>
+        <div class="audioControls">
+            <input type="range" id="progressBar" class="progress-bar" value="0" step="1">
+            <div class="volume-container">
+                <input type="range" id="volumeControl" class="volume-control" value="100" step="1">
+            </div>
+        </div>
+    </div>`;
     return elem;
 }
 
-function videoPanel(filename) {
+// Audio Controls
+function addAudioControlListeners() {
+    const audioElement = document.getElementById('audioElement');
+    const playPauseBtn = document.querySelector('.playPauseBtn');
+    const progressBar = document.querySelector('.progressBar');
+    const volumeControl = document.querySelector('.volumeControl');
+
+    playPauseBtn.addEventListener('click', function () {
+        if (audioElement.paused) {
+            audioElement.play();
+            playPauseBtn.textContent = 'Pause';
+        } else {
+            audioElement.pause();
+            playPauseBtn.textContent = 'Play';
+        }
+    });
+
+    audioElement.addEventListener('timeupdate', function () {
+        const progress = (audioElement.currentTime / audioElement.duration) * 100;
+        progressBar.value = progress;
+    });
+
+    progressBar.addEventListener('input', function () {
+        const value = progressBar.value;
+        audioElement.currentTime = (audioElement.duration * value) / 100;
+    });
+
+    volumeControl.addEventListener('input', function () {
+        audioElement.volume = volumeControl.value / 100;
+    });
+}
+
+document.addEventListener('DOMContentLoaded', addAudioControlListeners);
+
+function videoPanel(entry) {
     const elem = document.createElement('div');
     elem.classList.add('video_panel');
-    return elem;
+    elem.innerHTML =
+        `<div class="panelHeader">
+    ${entry['title']} by ${entry['author']}
+    <div style="padding: 1px" class="button-group">
+        <div style="scale: 0.65" class="button">
+            <div class="full-screen-1"></div>
+            <div class="full-screen-2"></div>
+        </div>
+    </div>
+</div>
+</div>
+<div class="fileHeader">
+    <div class="WhiteBar"></div>
+    <div class="fileInfo" onmousedown="showInfoWindow('${entry['title']}', '${entry['author']}', ${entry['project_month']}, ${entry['project_year']}, '${entry['description']}')">Information</div>
+    <div class="fileComments" onmousedown="showCommentWindow(${entry[
+        'id']})">Comments</div>
+</div>
+<video controls>
+    <source src="download/${entry['filename']}" type="video/mp4>
+</video>`;
+return elem;
 }
 
 // Scene setup function
 function setupScene() {
     const ring_params = {
-        '2022':{'radius':40, 'avel':new THREE.Vector3(0.0001, 0.00003, 0), 'rot':new THREE.Vector3(0, 0, Math.PI / 2), 'pos':new THREE.Vector3(0, 0, 0)},
-        '2023':{'radius':44, 'avel':new THREE.Vector3(-0.0001, 0.00003, 0), 'rot':new THREE.Vector3(0, 0, Math.PI / 2), 'pos':new THREE.Vector3(0, 0, 0)},
-        '2024':{'radius':48, 'avel':new THREE.Vector3(-0.0002, -0.00005, 0), 'rot':new THREE.Vector3(0, 0, 0), 'pos':new THREE.Vector3(0, 0, 0)},
+        '2022': { 'radius': 40, 'avel': new THREE.Vector3(0.0001, 0.00003, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
+        '2023': { 'radius': 44, 'avel': new THREE.Vector3(-0.0001, 0.00003, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
+        '2024': { 'radius': 48, 'avel': new THREE.Vector3(-0.0002, -0.00005, 0), 'rot': new THREE.Vector3(0, 0, 0), 'pos': new THREE.Vector3(0, 0, 0) },
         // '2025':{'radius':52, 'avel':new THREE.Vector3(0, 0, 0), 'rot':new THREE.Vector3(0, 0, 0), 'pos':new THREE.Vector3(0, 0, 0)},
     }
 
@@ -217,20 +322,19 @@ function setupScene() {
             for (let idx in db) {
                 if (!db[idx]['approved'] || db[idx]['project_year'] !== Number(year))
                     continue;
-                
+
                 if (db[idx]['filename'].split('.')[1].toUpperCase() === 'JPG')
-                    elems.push(imagePanel(db[idx]['filename']));
+                    elems.push(imagePanel(db[idx]));
 
                 if (db[idx]['filename'].split('.')[1].toUpperCase() === 'MP3')
-                    elems.push(audioPanel(db[idx]['filename']));
+                    elems.push(audioPanel(db[idx]));
 
                 if (db[idx]['filename'].split('.')[1].toUpperCase() === 'MP4')
-                    elems.push(videoPanel(db[idx]['filename']));
+                    elems.push(videoPanel(db[idx]));
             }
-            console.log(elems);
-            rings.push(new PanelRing(params['radius'], elems, Math.PI / elems.length, params['avel'], params['rot'], params['pos']));
+            rings.push(new PanelRing(params['radius'], elems, 2 * Math.PI / elems.length, params['avel'], params['rot'], params['pos']));
         }
-            
+
         for (var ring of rings)
             scene.add(ring.TJSGroup);
     };
