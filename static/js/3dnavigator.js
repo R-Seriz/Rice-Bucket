@@ -194,12 +194,6 @@ function imagePanel(entry) {
     elem.innerHTML =
         `<div class="panelHeader">
         ${entry['title']} by ${entry['author']}
-        <div style="padding: 1px" class="button-group">
-            <div style="scale: 0.65" class="button">
-                <div class="full-screen-1"></div>
-                <div class="full-screen-2"></div>
-            </div>
-        </div>
     </div>
     </div>
     <div class="fileHeader">
@@ -212,69 +206,145 @@ function imagePanel(entry) {
     return elem;
 }
 
+window.togglePlayPause = function(button) {
+    const audioContainer = button.closest('.audioContainer');
+    const audio = audioContainer.querySelector('audio');
+
+    if (audio.paused) {
+        audio.play();
+    } else {
+        audio.pause();
+    }
+
+    console.log('Play/Pause button clicked');
+};
+
+window.toggleReverse = function(button) {
+    const audioContainer = button.closest('.audioContainer');
+    const audio = audioContainer.querySelector('audio');
+
+    const rewindTime = 5;
+    audio.currentTime = Math.max(audio.currentTime - rewindTime, 0);
+
+    console.log('Reverse button clicked, current time:', audio.currentTime);
+};
+
+window.toggleForward = function(button) {
+    const audioContainer = button.closest('.audioContainer');
+    const audio = audioContainer.querySelector('audio');
+
+    const forwardTime = 5;
+    audio.currentTime = Math.min(audio.currentTime + forwardTime, audio.duration);
+
+    console.log('Forward button clicked, current time:', audio.currentTime);
+};
+
 function audioPanel(entry) {
     const elem = document.createElement('div');
     elem.classList.add('audio_panel');
     elem.innerHTML =
         `<div class="panelHeader">
-        [Project Title] by [Author/s]
-        <div style="padding: 1px" class="button-group">
-            <div style="scale: 0.65" class="button">
-                <div class="full-screen-1"></div>
-                <div class="full-screen-2"></div>
-            </div>
+            [Project Title] by [Author/s]
         </div>
-    </div>
-    <div class="fileHeader">
-        <div class="WhiteBar"></div>
-        <div class="fileInfo">Information</div>
-        <div class="fileComments">Comments</div>
-    </div>
-    <div class="audioContainer">
-        <audio id="audioElement" src="download/${entry['filename']}" preload="auto"></audio>
-        <div class="audioControls">
-            <input type="range" id="progressBar" class="progress-bar" value="0" step="1">
-            <div class="volume-container">
-                <input type="range" id="volumeControl" class="volume-control" value="100" step="1">
-            </div>
+        <div class="fileHeader">
+            <div class="WhiteBar"></div>
+            <div class="fileInfo" onmousedown="showInfoWindow('${entry['title']}', '${entry['author']}', ${entry['project_month']}, ${entry['project_year']}, '${entry['description']}')">Information</div>
+            <div class="fileComments" onmousedown="showCommentWindow(${entry['id']})">Comments</div>
         </div>
-    </div>`;
-    return elem;
-}
+        <audio src="download/${entry['filename']}" preload="metadata"></audio>
+        <div class="audioContainer">
+            <div class="audioControls">
+                <button class="reverse-button">
+                    <div class="play" style="transform: scale(0.75) translateX(-4.5px) rotate(180deg);"></div>
+                    <div class="play" style="transform: scale(0.75) translateX(1.5px) rotate(180deg);"></div>
+                </button>
+                <button class="play-pause-button"><div class="play"></div></button>
+                <button class="forward-button">
+                    <div class="play" style="transform: scale(0.75) translateX(2.5px);"></div>
+                    <div class="play" style="transform: scale(0.75) translateX(-3.5px);"></div>
+                </button>
+                <canvas class="visualizer"></canvas>
+                <div class="audioScreen">0:00</div>
+            </div>
+        </div>`;
 
-// Audio Controls
-function addAudioControlListeners() {
-    const audioElement = document.getElementById('audioElement');
-    const playPauseBtn = document.querySelector('.playPauseBtn');
-    const progressBar = document.querySelector('.progressBar');
-    const volumeControl = document.querySelector('.volumeControl');
+    const audio = elem.querySelector('audio');
+    const canvas = elem.querySelector('.visualizer');
+    const playPauseButton = elem.querySelector('.play-pause-button');
+    const reverseButton = elem.querySelector('.reverse-button');
+    const forwardButton = elem.querySelector('.forward-button');
+    const audioScreen = elem.querySelector('.audioScreen');
 
-    playPauseBtn.addEventListener('click', function () {
-        if (audioElement.paused) {
-            audioElement.play();
-            playPauseBtn.textContent = 'Pause';
+    // Canvas context and setup
+    const ctx = canvas.getContext('2d');
+    canvas.width = 135;
+    canvas.height = 25;
+
+    const audioContext = new AudioContext();
+    const analyser = audioContext.createAnalyser();
+    const source = audioContext.createMediaElementSource(audio);
+    source.connect(analyser);
+    analyser.connect(audioContext.destination);
+    analyser.fftSize = 256;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    function renderVisualizer() {
+        requestAnimationFrame(renderVisualizer);
+        analyser.getByteFrequencyData(dataArray);
+     
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas for next frame
+     
+        const barWidth = (canvas.width / bufferLength) * 4;
+        let barHeight;
+        let x = 0;
+     
+        const max = Math.max(...dataArray); // Find the maximum value in dataArray
+     
+        for (let i = 0; i < bufferLength; i++) {
+            barHeight = (dataArray[i] / max) * canvas.height; // Normalize the bar height
+            ctx.fillStyle = `white`;
+            ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+            x += barWidth + 1;
+        }
+    }
+
+    // Add event listeners
+    playPauseButton.addEventListener('mousedown', () => {
+        if (audio.paused) {
+            // Ensure AudioContext is resumed before playing audio
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+    
+            audio.play();
+            playPauseButton.innerHTML = `<div class="pause">
+                <div></div>
+                <div></div>
+            </div>`;
+            renderVisualizer(); // Start visualizer
         } else {
-            audioElement.pause();
-            playPauseBtn.textContent = 'Play';
+            audio.pause();
+            playPauseButton.innerHTML = `<div class="play"></div>`;
         }
     });
 
-    audioElement.addEventListener('timeupdate', function () {
-        const progress = (audioElement.currentTime / audioElement.duration) * 100;
-        progressBar.value = progress;
+    reverseButton.addEventListener('mousedown', () => {
+        audio.currentTime = Math.max(audio.currentTime - 5, 0);
     });
 
-    progressBar.addEventListener('input', function () {
-        const value = progressBar.value;
-        audioElement.currentTime = (audioElement.duration * value) / 100;
+    forwardButton.addEventListener('mousedown', () => {
+        audio.currentTime = Math.min(audio.currentTime + 5, audio.duration);
     });
 
-    volumeControl.addEventListener('input', function () {
-        audioElement.volume = volumeControl.value / 100;
+    audio.addEventListener('timeupdate', () => {
+        const mins = Math.floor(audio.currentTime / 60);
+        const secs = Math.floor(audio.currentTime % 60);
+        audioScreen.textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
     });
+
+    return elem;
 }
-
-document.addEventListener('DOMContentLoaded', addAudioControlListeners);
 
 function videoPanel(entry) {
     const elem = document.createElement('div');
@@ -282,12 +352,6 @@ function videoPanel(entry) {
     elem.innerHTML =
         `<div class="panelHeader">
     ${entry['title']} by ${entry['author']}
-    <div style="padding: 1px" class="button-group">
-        <div style="scale: 0.65" class="button">
-            <div class="full-screen-1"></div>
-            <div class="full-screen-2"></div>
-        </div>
-    </div>
 </div>
 </div>
 <div class="fileHeader">
@@ -296,9 +360,11 @@ function videoPanel(entry) {
     <div class="fileComments" onmousedown="showCommentWindow(${entry[
         'id']})">Comments</div>
 </div>
-<video controls>
-    <source src="download/${entry['filename']}" type="video/mp4>
-</video>`;
+<div class="videoContainer">
+    <video controls>
+        <source src="download/${entry['filename']}" type="video/mp4>
+    </video>
+</div>`;
 return elem;
 }
 
@@ -320,17 +386,12 @@ function setupScene() {
         for (const [year, params] of Object.entries(ring_params)) {
             var elems = [];
             for (let idx in db) {
-                if (!db[idx]['approved'] || db[idx]['project_year'] !== Number(year))
-                    continue;
+                if (!db[idx]['approved'] || db[idx]['project_year'] !== Number(year)) continue;
 
-                if (db[idx]['filename'].split('.')[1].toUpperCase() === 'JPG')
-                    elems.push(imagePanel(db[idx]));
-
-                if (db[idx]['filename'].split('.')[1].toUpperCase() === 'MP3')
-                    elems.push(audioPanel(db[idx]));
-
-                if (db[idx]['filename'].split('.')[1].toUpperCase() === 'MP4')
-                    elems.push(videoPanel(db[idx]));
+                const extension = db[idx]['filename'].split('.').at(-1).toUpperCase();
+                if (extension === 'JPG') elems.push(imagePanel(db[idx]));
+                if (extension === 'MP3') elems.push(audioPanel(db[idx]));
+                if (extension === 'MP4') elems.push(videoPanel(db[idx]));
             }
             rings.push(new PanelRing(params['radius'], elems, 2 * Math.PI / elems.length, params['avel'], params['rot'], params['pos']));
         }
@@ -338,6 +399,11 @@ function setupScene() {
         for (var ring of rings)
             scene.add(ring.TJSGroup);
     };
+
+    xhr.onerror = function () {
+        console.error("Failed to fetch data from /dbjson");
+    };
+
     xhr.send();
 }
 

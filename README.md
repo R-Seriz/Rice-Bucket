@@ -1,7 +1,5 @@
 # Rice-Bucket
 
-[]
-
 Technical TODO
 - [N1] Clicking on a panel in the same ring runs the zoom animation
 - [N3+] Extra filetype support (wav, png, etc)

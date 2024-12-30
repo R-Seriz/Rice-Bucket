@@ -1,0 +1,9 @@
+.DS_Store
+__pycache__/
+database.db
+database_bkup.db
+pages/.DS_Store
+static/.DS_Store
+static/assets/.DS_Store
+static/assets/family/.DS_Store
+uploads/

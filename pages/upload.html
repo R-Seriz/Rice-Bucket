@@ -19,12 +19,13 @@
 
     <div class="container">
         <div class="sectionheader">Upload</div>
-
+        <p id="upload-instructions">
+            Submission must include a Title, Author/s, Year (YYYY), and Month (MM) <br>
+            Accepted file types: <b>.JPG, .MP3, .MP4</b></p>
         <form id="uploader" method=post method=post enctype=multipart/form-data>
             <div class="upload-forms">
                 <div id="file-selector-shadows"></div>
                 <input type="file" name="file" />
-                <input type=submit value=Upload>
             </div>
             <div class="upload-forms">
                 <input id="title" type=text name=title placeholder="Title">
@@ -35,11 +36,12 @@
                 <input id="month" type=text name=month placeholder="MM" maxlength="2">
             </div>
             <div class="upload-forms">
-                <textarea id="description" name="description" placeholder="Description" maxlength="2200"></textarea>
+                <textarea id="description" name="description" placeholder="Description" maxlength="500"></textarea>
                 <div id="char-count">
-                    <span id="char-count-text">0/2200</span> characters
+                    <span id="char-count-text">0/500</span> characters
                 </div>
-                </di>
+                <input type=submit value=Upload style="transform: translateX(4px);">
+            </div>
         </form>
 
     </div>
@@ -136,6 +138,13 @@
         box-shadow: -2px -2px #818181, -2px 0 #818181, 0 -2px #818181, -4px -4px black, -4px 0 black, 0 -4px black, 2px 2px #e0dede, 0 2px #e0dede, 2px 0 #e0dede, 2px -2px #818181, -2px 2px #e0dede, -4px 2px black, -4px 4px white, 4px 4px white, 4px 0 white, 0 4px white, 2px -4px black, 4px -4px white;
     }
 
+    #upload-instructions {
+        font-size: 14px;
+        padding-left: 25px;
+        font-family: JetBrains Mono, monospace;
+        margin-top: 0;
+    }
+
     #title {
         width: 250px;
     }
@@ -161,6 +170,52 @@
         const maxLength = this.getAttribute('maxlength');
         const currentLength = this.value.length;
         charCountText.textContent = `${currentLength}/${maxLength}`;
+    });
+
+    const form = document.getElementById('uploader');
+    const fileInput = document.querySelector('input[name="file"]');
+    const titleInput = document.getElementById('title');
+    const authorInput = document.getElementById('author');
+    const yearInput = document.getElementById('year');
+    const monthInput = document.getElementById('month');
+
+    form.addEventListener('submit', function (event) {
+        let isValid = true;
+
+        // Check if the file is selected
+        if (!fileInput.files.length) {
+            isValid = false;
+            alert('PLEASE SELECT A FILE');
+        }
+
+        // Check if title is filled
+        if (!titleInput.value.trim()) {
+            isValid = false;
+            alert('PLEASE ENTER A TITLE');
+        }
+
+        // Check if author is filled
+        if (!authorInput.value.trim()) {
+            isValid = false;
+            alert('PLEASE ENTER THE AUTHOR/S');
+        }
+
+        // Check if year is a valid 4-digit number
+        if (!/^\d{4}$/.test(yearInput.value)) {
+            isValid = false;
+            alert('PLEASE ENTER A VALID 4-DIGIT YEAR');
+        }
+
+        // Check if month is a valid 2-digit number (01-12)
+        if (!/^(0[1-9]|1[0-2])$/.test(monthInput.value)) {
+            isValid = false;
+            alert('PLEASE ENTER A VALID MONTH (01-12)');
+        }
+
+        // Prevent form submission if any validation fails
+        if (!isValid) {
+            event.preventDefault();
+        }
     });
 </script>
 
