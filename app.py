@@ -5,6 +5,7 @@ from sqlalchemy.sql import func
 import os
 import datetime
 import argparse
+import hashlib
 
 UPLOAD_FOLDER = './uploads'
 TEMPLATE_FOLDER = './pages'
@@ -13,13 +14,26 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'mp3', 'mp4'}
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__, template_folder=TEMPLATE_FOLDER)
-app.config['SQLALCHEMY_DATABASE_URI'] =\
-        'sqlite:///' + os.path.join(basedir, 'database.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = \
+    'sqlite:///' + os.path.join(basedir, 'database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = 'bob'
 
 db = SQLAlchemy(app)
+
+
+# Very good security practice :)
+users = {
+    '3d2ce9e6f831206186e356376a913dc7d440b1d7eb2f804d4b66f37449af58f4941027bbca79afe96144fdea13349c3c659c44f3157e75256e7b52315d2c3a6b': 'Rui',
+    '51279e6ba0c7f6655582898572536c131a32172b72d17c81b85380c712f4fde80b059f69a4d88adb4775c9685f1c0c5e844aa09c029b675e20254a8418428090': 'Kian',
+    'Bob': 'asdf',
+    'Bobob': 'asdf',
+    'Bobinsky': 'asdf',
+    'Bobo': 'asdf',
+    'Bobby': 'asdf',
+}
+
 
 class FileEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -61,7 +75,8 @@ def home():
 
 @app.route('/about')
 def about():
-    return render_template('about.html', family_photos=[a for a in os.listdir('./static/assets/family') if a.split('.')[-1].upper() == 'JPG'])
+    return render_template('about.html', family_photos=[a for a in os.listdir('./static/assets/family') if
+                                                        a.split('.')[-1].upper() == 'JPG'])
 
 
 @app.route('/directory')
@@ -71,11 +86,16 @@ def directory():
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
-    if 'uzakunai' not in request.cookies:
-        if request.method == 'POST' and request.form['memberid'] == 'grass':
-            resp = make_response(render_template('upload.html'))
-            resp.set_cookie('uzakunai', '1')
-            return resp
+    if 'RB_MEMBER_CODE' not in request.cookies:
+        if request.method == 'POST':
+            cookie_hash = hashlib.sha512(bytes(request.form['memberid'], 'utf-8')).hexdigest()
+            if cookie_hash in users.keys():
+                resp = make_response(render_template('upload.html'))
+                resp.set_cookie('RB_MEMBER_CODE', cookie_hash)
+                return resp
+        return render_template('authenticate.html')
+
+    if hashlib.sha512(bytes(request.cookies.get('RB_MEMBER_CODE'), 'utf-8')).hexdigest() not in users.keys():
         return render_template('authenticate.html')
 
     if request.method == 'POST':
@@ -92,7 +112,9 @@ def upload():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            db.session.add(FileEntry(author=request.form['author'], project_year=request.form['year'], project_month=request.form['month'], title=request.form['title'], description=request.form['description'], filename=filename))
+            db.session.add(FileEntry(author=request.form['author'], project_year=request.form['year'],
+                                     project_month=request.form['month'], title=request.form['title'],
+                                     description=request.form['description'], filename=filename))
             db.session.commit()
     return render_template('upload.html')
 
@@ -104,7 +126,7 @@ def download_file(name):
 
 @app.route('/delete/<int:id>')
 def delete(id):
-    if 'uzakunai' not in request.cookies:
+    if request.cookies.get('RB_MEMBER_CODE') not in users.keys():
         return redirect(url_for('upload'))
     file = FileEntry.query.filter(FileEntry.id == id).one()
     db.session.delete(file)
@@ -115,7 +137,7 @@ def delete(id):
 
 @app.route('/approve/<int:id>')
 def approve(id):
-    if 'uzakunai' not in request.cookies:
+    if request.cookies.get('RB_MEMBER_CODE') not in users.keys():
         return redirect(url_for('upload'))
     file = FileEntry.query.filter(FileEntry.id == id).one()
     file.approved = not file.approved
@@ -125,17 +147,25 @@ def approve(id):
 
 @app.route('/comment', methods=['POST'])
 def postComment():
-    db.session.add(CommentEntry(author=request.form['author'], text=request.form['text'], fileentry_id=request.form['postid']))
+    if request.cookies.get('RB_MEMBER_CODE') not in users.keys():
+        return "UNAUTHORIZED"
+    db.session.add(
+        CommentEntry(author=users[request.cookies.get('RB_MEMBER_CODE')], text=request.form['text'], fileentry_id=request.form['postid']))
     db.session.commit()
     return "OK"
 
+
 @app.route('/comment/<int:id>', methods=['GET'])
 def listComment(id):
-    return jsonify([{'id': row.id, 'author':row.author, 'text':row.text, 'created_at':row.created_at} for row in CommentEntry.query.filter(CommentEntry.fileentry_id == id)])
+    return jsonify([{'id': row.id, 'author': row.author, 'text': row.text, 'created_at': row.created_at} for row in
+                    CommentEntry.query.filter(CommentEntry.fileentry_id == id)])
+
 
 @app.route('/dbjson')
 def dbjson():
-    return jsonify([{'id': x.id, 'approved':x.approved, 'creation_date': x.created_at, 'project_year':x.project_year, 'project_month':x.project_month, 'author': x.author, 'title':x.title, 'description':x.description, 'filename': x.filename} for x in FileEntry.query.all()])
+    return jsonify([{'id': x.id, 'approved': x.approved, 'creation_date': x.created_at, 'project_year': x.project_year,
+                     'project_month': x.project_month, 'author': x.author, 'title': x.title,
+                     'description': x.description, 'filename': x.filename} for x in FileEntry.query.all()])
 
 
 @app.errorhandler(404)
@@ -149,6 +179,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.prod:
         from waitress import serve
+
         print("Started running production thing")
         serve(app, host="0.0.0.0", port=80)
     else:

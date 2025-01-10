@@ -220,7 +220,7 @@
       fetchComments();
 
       if (commentPollInterval) clearInterval(commentPollInterval);
-      commentPollInterval = setInterval(fetchComments, 1);
+      commentPollInterval = setInterval(fetchComments, 2000);
 
       document.getElementById('comments-window').style.display = 'block';
     }

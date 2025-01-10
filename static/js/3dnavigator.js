@@ -118,6 +118,7 @@ var rings = [];
 var globalTime = 0;
 var followActive = false;
 var followObjectTheta = 0;
+var smoothFOT = 0;
 var activeRing = null;
 var followRing = new PanelRing(1, [document.createElement('div'), document.createElement('div')], Math.PI / 2, new THREE.Vector3(0, 0, 0));
 var cameraTarget = new THREE.Vector3(0, 0, 0);
@@ -140,6 +141,7 @@ CSSrenderer.domElement.style.position = 'relative';
 function startFollow(panel, ringPos) {
     cameraTarget = ringPos;
     followActive = true;
+    smoothFOT = panel.theta;
     followObjectTheta = panel.theta;
     controls.enableZoom = false;
     controls.target.set(ringPos.x, ringPos.y, ringPos.z);
@@ -147,6 +149,9 @@ function startFollow(panel, ringPos) {
 
 // Camera follow function
 function cameraFollow() {
+    followObjectTheta += (smoothFOT - followObjectTheta) * 0.2;
+    followObjectTheta +=  (smoothFOT - followObjectTheta) > 0 ? Math.min(smoothFOT - followObjectTheta, 0.001) : Math.max(smoothFOT - followObjectTheta, -0.001);
+
     followRing.updateOrbit(globalTime);
     followRing.panels[0].setPositionFromTheta(followObjectTheta, followRing.panels[0].radius);
     followRing.panels[1].setPositionFromTheta(followObjectTheta + Math.PI / 2, 1);
@@ -183,7 +188,7 @@ function onWindowResize() {
 
 // Update camera position on scroll 
 CSSrenderer.domElement.onwheel = function (e) {
-    followObjectTheta += -e.deltaY / 1000.0;
+    smoothFOT += -e.deltaY / 1000.0;
 };
 
 
@@ -244,7 +249,7 @@ function audioPanel(entry) {
     elem.classList.add('audio_panel');
     elem.innerHTML =
         `<div class="panelHeader">
-            [Project Title] by [Author/s]
+            ${entry['title']} by ${entry['author']}
         </div>
         <div class="fileHeader">
             <div class="WhiteBar"></div>
@@ -362,7 +367,7 @@ function videoPanel(entry) {
 </div>
 <div class="videoContainer">
     <video controls>
-        <source src="download/${entry['filename']}" type="video/mp4>
+        <source src="download/${entry['filename']}" type="video/mp4">
     </video>
 </div>`;
 return elem;
