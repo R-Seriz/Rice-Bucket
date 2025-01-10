@@ -116,7 +116,7 @@ def upload():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             db.session.add(FileEntry(author=request.form['author'], project_year=request.form['year'],
                                      project_month=request.form['month'], title=request.form['title'],
-                                     description=request.form['description'], filename=filename))
+                                     description=request.form['description'].replace('\\n','<br/>'), filename=filename))
             db.session.commit()
     return render_template('upload.html')
 
