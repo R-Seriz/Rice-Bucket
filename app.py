@@ -97,7 +97,7 @@ def upload():
                 return resp
         return render_template('authenticate.html')
 
-    if hashlib.sha512(bytes(request.cookies.get('RB_MEMBER_CODE'), 'utf-8')).hexdigest() not in users.keys():
+    if request.cookies.get('RB_MEMBER_CODE') not in users.keys():
         return render_template('authenticate.html')
 
     if request.method == 'POST':
