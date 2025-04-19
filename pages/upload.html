@@ -24,8 +24,13 @@
             Accepted file types: <b>.JPG, .MP3, .MP4</b></p>
         <form id="uploader" method=post method=post enctype=multipart/form-data>
             <div class="upload-forms">
-                <div id="file-selector-shadows"></div>
-                <input type="file" name="file" />
+                <select id="file-type" name="file-type">
+                    <option value="" disabled selected>Select file type</option>
+                    <option value="jpg">.JPG</option>
+                    <option value="png">.PNG</option>
+                    <option value="mp3">.MP3</option>
+                    <option value="youtube">YouTube Link</option>
+                </select>
             </div>
             <div class="upload-forms">
                 <input id="title" type=text name=title placeholder="Title">
@@ -40,6 +45,15 @@
                 <div id="char-count">
                     <span id="char-count-text">0/500</span> characters
                 </div>
+            </div>
+            <div class="upload-forms">
+                <div id="file-selector-shadows"></div>
+                <input type="file" name="file" />
+            </div>
+            <div class="upload-forms" id="youtube-link-container" style="display: none;">
+                <input id="youtube-link" type="url" name="youtube-link" placeholder="YouTube URL">
+            </div>
+            <div class="upload-forms">
                 <input type=submit value=Upload style="transform: translateX(4px);">
             </div>
         </form>
@@ -57,10 +71,14 @@
         pointer-events: none;
         background-color: none;
         height: 20px;
-        margin-left: 5px;
+        margin-left: 4px;
         margin-right: 200px;
         width: 95px;
         box-shadow: -2px -2px #e0dede, -2px 0 #e0dede, 0 -2px #e0dede, -4px -4px white, -4px 0 white, 0 -4px white, 2px 2px #818181, 0 2px #818181, 2px 0 #818181, 2px -2px #e0dede, -2px 2px #818181, -4px 2px white, -4px 4px black, 4px 4px black, 4px 0 black, 0 4px black, 2px -4px white, 4px -4px black;
+    }
+
+    #title {
+        width: 493px;
     }
 
     #year {
@@ -74,7 +92,7 @@
     }
 
     #author {
-        width: 300px;
+        width: 401px;
     }
 
     #description {
@@ -101,6 +119,8 @@
     #author:focus,
     #year:focus,
     #month:focus,
+    #youtube-link:focus,
+    #file-type:focus,
     #uploader input[type="file"]:focus {
         outline: none;
     }
@@ -111,12 +131,39 @@
         padding-left: 20px;
     }
 
+    label[for="file-type"] {
+        font-family: 'Chicago';
+        font-size: 14px;
+    }
+
+    #file-type {
+        font-family: 'Chicago';
+        font-size: 14px;
+        box-shadow: -2px -2px #e0dede, -2px 0 #e0dede, 0 -2px #e0dede, -4px -4px white, -4px 0 white, 0 -4px white, 2px 2px #818181, 0 2px #818181, 2px 0 #818181, 2px -2px #e0dede, -2px 2px #818181, -4px 2px white, -4px 4px black, 4px 4px black, 4px 0 black, 0 4px black, 2px -4px white, 4px -4px black;
+        border-radius: 0;
+        border: none;
+        background: none;
+        text-align: center;
+        width: 125px;
+        height: 20px;
+        margin-left: 4px;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+    }
+
     #uploader input[type="text"] {
         font-family: 'Chicago';
         border-radius: 0;
         border: 1.5px solid #818181;
     }
 
+    #uploader input[type="url"] {
+        font-family: 'Chicago';
+        border-radius: 0;
+        border: 1.5px solid #818181;
+        width: 493px;
+    }
 
     #uploader input[type="submit"] {
         font-family: 'Chicago';
@@ -124,11 +171,12 @@
         border-radius: 0;
         border: none;
         background: none;
+        height: 20px;
     }
 
     #uploader input[type="file"] {
         font-family: 'Chicago';
-        height: 20px;
+        height: 20x;
         margin-left: 5px;
         margin-right: 200px;
         width: 225px;
@@ -143,10 +191,7 @@
         padding-left: 25px;
         font-family: JetBrains Mono, monospace;
         margin-top: 0;
-    }
-
-    #title {
-        width: 250px;
+        margin-bottom: 5px;
     }
 
     input::file-selector-button {
@@ -182,41 +227,65 @@
     form.addEventListener('submit', function (event) {
         let isValid = true;
 
-        // Check if the file is selected
-        if (!fileInput.files.length) {
-            isValid = false;
-            alert('PLEASE SELECT A FILE');
+        const selectedType = fileTypeDropdown.value;
+
+        // Validate based on selected file type
+        if (selectedType === 'youtube') {
+            if (!youtubeInput.value.trim() || !/^https:\/\/(www\.)?youtube\.com\/watch\?v=/.test(youtubeInput.value)) {
+                isValid = false;
+                alert('PLEASE ENTER A VALID YOUTUBE LINK');
+            }
+        } else {
+            if (!fileInput.files.length) {
+                isValid = false;
+                alert('PLEASE SELECT A FILE');
+            }
         }
 
-        // Check if title is filled
         if (!titleInput.value.trim()) {
             isValid = false;
             alert('PLEASE ENTER A TITLE');
         }
 
-        // Check if author is filled
         if (!authorInput.value.trim()) {
             isValid = false;
             alert('PLEASE ENTER THE AUTHOR/S');
         }
 
-        // Check if year is a valid 4-digit number
         if (!/^\d{4}$/.test(yearInput.value)) {
             isValid = false;
             alert('PLEASE ENTER A VALID 4-DIGIT YEAR');
         }
 
-        // Check if month is a valid 2-digit number (01-12)
         if (!/^(0[1-9]|1[0-2])$/.test(monthInput.value)) {
             isValid = false;
             alert('PLEASE ENTER A VALID MONTH (01-12)');
         }
 
-        // Prevent form submission if any validation fails
         if (!isValid) {
             event.preventDefault();
         }
     });
+
+    const fileTypeDropdown = document.getElementById('file-type');
+    const fileUploadInput = document.querySelector('input[name="file"]');
+    const youtubeContainer = document.getElementById('youtube-link-container');
+    const youtubeInput = document.getElementById('youtube-link');
+
+    fileTypeDropdown.addEventListener('change', function () {
+        if (this.value === 'youtube') {
+            fileUploadInput.disabled = true;
+            fileUploadInput.parentElement.style.display = 'none';
+            youtubeContainer.style.display = 'block';
+        } else {
+            fileUploadInput.disabled = false;
+            fileUploadInput.parentElement.style.display = 'block';
+            youtubeContainer.style.display = 'none';
+            youtubeInput.value = ''; // Clear if switching back
+        }
+    });
+
+
 </script>
 
 </html>
