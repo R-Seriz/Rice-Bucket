@@ -3,9 +3,9 @@ from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 import os
-import datetime
 import argparse
 import hashlib
+from urllib.parse import urlparse, parse_qs
 
 UPLOAD_FOLDER = './uploads'
 TEMPLATE_FOLDER = './pages'
@@ -47,6 +47,7 @@ class FileEntry(db.Model):
                            server_default=func.now())
     description = db.Column(db.String(2200), nullable=False)
     approved = db.Column(db.Boolean, default=False, nullable=False)
+    filetype = db.Column(db.Integer, nullable=False) # 0:JPG, 1:PNG, 2:MP3, 3:YT
     filename = db.Column(db.Text, nullable=False)
 
     def __repr__(self):
@@ -86,6 +87,11 @@ def directory():
     return render_template('directory.html', files=FileEntry.query.all())
 
 
+@app.route('/feed')
+def member_feed():
+    return render_template('feed.html')
+
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     if 'RB_MEMBER_CODE' not in request.cookies:
@@ -101,6 +107,17 @@ def upload():
         return render_template('authenticate.html')
 
     if request.method == 'POST':
+        print(request.form)
+        if request.form['filetype'] in ["3"]: # Check if filetype is YT link (logic prepared for expansion)
+            url_data = urlparse(request.form['youtube-link'])
+            query = parse_qs(url_data.query)
+            video = query["v"][0]
+            db.session.add(FileEntry(author=request.form['author'], project_year=request.form['year'],
+                                     project_month=request.form['month'], title=request.form['title'],
+                                     description=request.form['description'].replace('\\n','<br/>'), 
+                                     filetype=request.form['filetype'], filename=video))
+            db.session.commit()
+        
         # check if the post request has the file part
         if 'file' not in request.files:
             flash('No file part')
@@ -116,7 +133,8 @@ def upload():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             db.session.add(FileEntry(author=request.form['author'], project_year=request.form['year'],
                                      project_month=request.form['month'], title=request.form['title'],
-                                     description=request.form['description'].replace('\\n','<br/>'), filename=filename))
+                                     description=request.form['description'].replace('\\n','<br/>'), 
+                                     filetype=request.form['filetype'], filename=filename))
             db.session.commit()
     return render_template('upload.html')
 
@@ -167,7 +185,7 @@ def listComment(id):
 def dbjson():
     return jsonify([{'id': x.id, 'approved': x.approved, 'creation_date': x.created_at, 'project_year': x.project_year,
                      'project_month': x.project_month, 'author': x.author, 'title': x.title,
-                     'description': x.description, 'filename': x.filename} for x in FileEntry.query.all()])
+                     'description': x.description, 'filetype': x.filetype, 'filename': x.filename} for x in FileEntry.query.all()])
 
 
 @app.errorhandler(404)

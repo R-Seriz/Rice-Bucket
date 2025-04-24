@@ -150,7 +150,7 @@ function startFollow(panel, ringPos) {
 // Camera follow function
 function cameraFollow() {
     followObjectTheta += (smoothFOT - followObjectTheta) * 0.2;
-    followObjectTheta +=  (smoothFOT - followObjectTheta) > 0 ? Math.min(smoothFOT - followObjectTheta, 0.001) : Math.max(smoothFOT - followObjectTheta, -0.001);
+    followObjectTheta += (smoothFOT - followObjectTheta) > 0 ? Math.min(smoothFOT - followObjectTheta, 0.001) : Math.max(smoothFOT - followObjectTheta, -0.001);
 
     followRing.updateOrbit(globalTime);
     followRing.panels[0].setPositionFromTheta(followObjectTheta, followRing.panels[0].radius);
@@ -211,7 +211,7 @@ function imagePanel(entry) {
     return elem;
 }
 
-window.togglePlayPause = function(button) {
+window.togglePlayPause = function (button) {
     const audioContainer = button.closest('.audioContainer');
     const audio = audioContainer.querySelector('audio');
 
@@ -224,7 +224,7 @@ window.togglePlayPause = function(button) {
     console.log('Play/Pause button clicked');
 };
 
-window.toggleReverse = function(button) {
+window.toggleReverse = function (button) {
     const audioContainer = button.closest('.audioContainer');
     const audio = audioContainer.querySelector('audio');
 
@@ -234,7 +234,7 @@ window.toggleReverse = function(button) {
     console.log('Reverse button clicked, current time:', audio.currentTime);
 };
 
-window.toggleForward = function(button) {
+window.toggleForward = function (button) {
     const audioContainer = button.closest('.audioContainer');
     const audio = audioContainer.querySelector('audio');
 
@@ -297,15 +297,15 @@ function audioPanel(entry) {
     function renderVisualizer() {
         requestAnimationFrame(renderVisualizer);
         analyser.getByteFrequencyData(dataArray);
-     
+
         ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas for next frame
-     
+
         const barWidth = (canvas.width / bufferLength) * 4;
         let barHeight;
         let x = 0;
-     
+
         const max = Math.max(...dataArray); // Find the maximum value in dataArray
-     
+
         for (let i = 0; i < bufferLength; i++) {
             barHeight = (dataArray[i] / max) * canvas.height; // Normalize the bar height
             ctx.fillStyle = `white`;
@@ -321,7 +321,7 @@ function audioPanel(entry) {
             if (audioContext.state === 'suspended') {
                 audioContext.resume();
             }
-    
+
             audio.play();
             playPauseButton.innerHTML = `<div class="pause">
                 <div></div>
@@ -370,16 +370,42 @@ function videoPanel(entry) {
         <source src="download/${entry['filename']}" type="video/mp4">
     </video>
 </div>`;
-return elem;
+    return elem;
+}
+
+function ytPanel(entry) {
+    const elem = document.createElement('div');
+    elem.classList.add('video_panel');
+    elem.innerHTML =
+        `<div class="panelHeader">
+            ${entry['title']} by ${entry['author']}
+        </div>
+</div>
+<div class="fileHeader">
+    <div class="WhiteBar"></div>
+    <div class="fileInfo" onmousedown="showInfoWindow('${entry['title']}', '${entry['author']}', ${entry['project_month']}, ${entry['project_year']}, '${entry['description']}')">Information</div>
+    <div class="fileComments" onmousedown="showCommentWindow(${entry[
+        'id']})">Comments</div>
+</div>
+<div class="videoContainer">
+    <iframe width="420" height="318"
+        src="https://www.youtube.com/embed/${entry['filename']}">
+    </iframe>
+</div>`;
+    return elem;
 }
 
 // Scene setup function
 function setupScene() {
     const ring_params = {
-        '2022': { 'radius': 40, 'avel': new THREE.Vector3(0.0001, 0.00003, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
-        '2023': { 'radius': 44, 'avel': new THREE.Vector3(-0.0001, 0.00003, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
-        '2024': { 'radius': 48, 'avel': new THREE.Vector3(-0.0002, -0.00005, 0), 'rot': new THREE.Vector3(0, 0, 0), 'pos': new THREE.Vector3(0, 0, 0) },
-        // '2025':{'radius':52, 'avel':new THREE.Vector3(0, 0, 0), 'rot':new THREE.Vector3(0, 0, 0), 'pos':new THREE.Vector3(0, 0, 0)},
+        // '2022': { 'radius': 40, 'avel': new THREE.Vector3(0.0001, 0.00003, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
+        // '2023': { 'radius': 44, 'avel': new THREE.Vector3(-0.0001, 0.00003, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
+        // '2024': { 'radius': 48, 'avel': new THREE.Vector3(-0.0002, -0.00005, 0), 'rot': new THREE.Vector3(0, 0, 0), 'pos': new THREE.Vector3(0, 0, 0) },
+        // '2025': { 'radius': 52, 'avel': new THREE.Vector3(0.0002, -0.0001, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 4), 'pos': new THREE.Vector3(0, 0, 0) },
+        '2022': { 'radius': 40, 'avel': new THREE.Vector3(0, 0, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
+        '2023': { 'radius': 44, 'avel': new THREE.Vector3(0, 0, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
+        '2024': { 'radius': 48, 'avel': new THREE.Vector3(0, 0, 0), 'rot': new THREE.Vector3(0, 0, 0), 'pos': new THREE.Vector3(0, 0, 0) },
+        '2025': { 'radius': 52, 'avel': new THREE.Vector3(0, 0, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 4), 'pos': new THREE.Vector3(0, 0, 0) },
     }
 
     var divs = [];
@@ -392,11 +418,10 @@ function setupScene() {
             var elems = [];
             for (let idx in db) {
                 if (!db[idx]['approved'] || db[idx]['project_year'] !== Number(year)) continue;
-
-                const extension = db[idx]['filename'].split('.').at(-1).toUpperCase();
-                if (extension === 'JPG') elems.push(imagePanel(db[idx]));
-                if (extension === 'MP3') elems.push(audioPanel(db[idx]));
-                if (extension === 'MP4') elems.push(videoPanel(db[idx]));
+                console.log(db[idx]);
+                if (db[idx]['filetype'] === 0 || db[idx]['filetype'] === '1') elems.push(imagePanel(db[idx]));
+                if (db[idx]['filetype'] === 2) elems.push(audioPanel(db[idx]));
+                if (db[idx]['filetype'] === 3) elems.push(ytPanel(db[idx]));
             }
             rings.push(new PanelRing(params['radius'], elems, 2 * Math.PI / elems.length, params['avel'], params['rot'], params['pos']));
         }

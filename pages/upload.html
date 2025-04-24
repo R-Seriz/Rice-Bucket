@@ -15,6 +15,7 @@
         <a href="{{ url_for('about') }}" style="text-decoration:none">About</a>
         <a class="active" href="{{ url_for('upload') }}" style="text-decoration:none">Upload</a>
         <a href="{{ url_for('directory') }}" style="text-decoration:none">Directory</a>
+        <a href="{{ url_for('member_feed') }}" style="text-decoration:none">Feed</a>
     </div>
 
     <div class="container">
@@ -24,12 +25,12 @@
             Accepted file types: <b>.JPG, .MP3, .MP4</b></p>
         <form id="uploader" method=post method=post enctype=multipart/form-data>
             <div class="upload-forms">
-                <select id="file-type" name="file-type">
+                <select id="file-type" name=filetype form="uploader" required>
                     <option value="" disabled selected>Select file type</option>
-                    <option value="jpg">.JPG</option>
-                    <option value="png">.PNG</option>
-                    <option value="mp3">.MP3</option>
-                    <option value="youtube">YouTube Link</option>
+                    <option value="0">.JPG</option>
+                    <option value="1">.PNG</option>
+                    <option value="2">.MP3</option>
+                    <option value="3">YouTube Link</option>
                 </select>
             </div>
             <div class="upload-forms">
@@ -230,7 +231,7 @@
         const selectedType = fileTypeDropdown.value;
 
         // Validate based on selected file type
-        if (selectedType === 'youtube') {
+        if (selectedType === '3') {
             if (!youtubeInput.value.trim() || !/^https:\/\/(www\.)?youtube\.com\/watch\?v=/.test(youtubeInput.value)) {
                 isValid = false;
                 alert('PLEASE ENTER A VALID YOUTUBE LINK');
@@ -273,7 +274,7 @@
     const youtubeInput = document.getElementById('youtube-link');
 
     fileTypeDropdown.addEventListener('change', function () {
-        if (this.value === 'youtube') {
+        if (this.value === '3') {
             fileUploadInput.disabled = true;
             fileUploadInput.parentElement.style.display = 'none';
             youtubeContainer.style.display = 'block';
