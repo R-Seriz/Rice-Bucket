@@ -67,6 +67,7 @@ class PanelRing {
             // console.log(camera.position);
 
             activeRing = this;
+            focusVideoPanels();
 
             followActive = false;
             followRing.avel = ring.avel;
@@ -169,6 +170,7 @@ function cameraFollow() {
 // Renderer click detection for resuming orbit controls
 CSSrenderer.domElement.onpointerdown = function (e) {
     if (document.elementFromPoint(e.clientX, e.clientY) === CSSrenderer.domElement) {
+        unfocusVideoPanels();
         activeRing = null;
         followActive = false;
         controls.enableZoom = true;
@@ -393,6 +395,18 @@ function ytPanel(entry) {
     </iframe>
 </div>`;
     return elem;
+}
+
+function focusVideoPanels() {
+    document.querySelectorAll('.videoContainer').forEach((panel) => {
+        panel.style.pointerEvents = 'auto';
+    });
+}
+
+function unfocusVideoPanels() {
+    document.querySelectorAll('.videoContainer').forEach((panel) => {
+        panel.style.pointerEvents = 'none';
+    });
 }
 
 // Scene setup function
