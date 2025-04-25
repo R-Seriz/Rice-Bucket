@@ -412,14 +412,14 @@ function unfocusVideoPanels() {
 // Scene setup function
 function setupScene() {
     const ring_params = {
-        // '2022': { 'radius': 40, 'avel': new THREE.Vector3(0.0001, 0.00003, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
-        // '2023': { 'radius': 44, 'avel': new THREE.Vector3(-0.0001, 0.00003, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
-        // '2024': { 'radius': 48, 'avel': new THREE.Vector3(-0.0002, -0.00005, 0), 'rot': new THREE.Vector3(0, 0, 0), 'pos': new THREE.Vector3(0, 0, 0) },
-        // '2025': { 'radius': 52, 'avel': new THREE.Vector3(0.0002, -0.0001, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 4), 'pos': new THREE.Vector3(0, 0, 0) },
-        '2022': { 'radius': 40, 'avel': new THREE.Vector3(0, 0, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
-        '2023': { 'radius': 44, 'avel': new THREE.Vector3(0, 0, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
-        '2024': { 'radius': 48, 'avel': new THREE.Vector3(0, 0, 0), 'rot': new THREE.Vector3(0, 0, 0), 'pos': new THREE.Vector3(0, 0, 0) },
-        '2025': { 'radius': 52, 'avel': new THREE.Vector3(0, 0, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 4), 'pos': new THREE.Vector3(0, 0, 0) },
+        '2022': { 'radius': 40, 'avel': new THREE.Vector3(0.0001, 0.00003, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
+        '2023': { 'radius': 44, 'avel': new THREE.Vector3(-0.0001, 0.00003, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
+        '2024': { 'radius': 48, 'avel': new THREE.Vector3(-0.0002, -0.00005, 0), 'rot': new THREE.Vector3(0, 0, 0), 'pos': new THREE.Vector3(0, 0, 0) },
+        '2025': { 'radius': 52, 'avel': new THREE.Vector3(0.0002, -0.0001, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 4), 'pos': new THREE.Vector3(0, 0, 0) },
+        // '2022': { 'radius': 40, 'avel': new THREE.Vector3(0, 0, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
+        // '2023': { 'radius': 44, 'avel': new THREE.Vector3(0, 0, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
+        // '2024': { 'radius': 48, 'avel': new THREE.Vector3(0, 0, 0), 'rot': new THREE.Vector3(0, 0, 0), 'pos': new THREE.Vector3(0, 0, 0) },
+        // '2025': { 'radius': 52, 'avel': new THREE.Vector3(0, 0, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 4), 'pos': new THREE.Vector3(0, 0, 0) },
     }
 
     var divs = [];
