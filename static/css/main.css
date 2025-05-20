@@ -257,7 +257,7 @@ body {
     pointer-events: auto;
     width: 480px;
     height: 360px;
-    background-color: white;
+    background-color: rgb(0, 0, 0);
     box-shadow: -1.5px -1.5px #e0dede, -1.5px 0 #e0dede, 0 -1.5px #e0dede, -3px -3px white, -3px 0 white, 0 -3px white, 1.5px 1.5px #818181, 0 1.5px #818181, 1.5px 0 #818181, 1.5px -1.5px #e0dede, -1.5px 1.5px #818181, -3px 1.5px white, -3px 3px black, 3px 3px black, 3px 0 black, 0 3px black, 1.5px -3px white, 3px -3px black;
 }
 
@@ -280,6 +280,12 @@ video {
     margin: auto; 
     object-fit: contain;
   }
+
+.video-iframe {
+    border: none;
+    height: auto;
+    width: 100%;
+}
 
 .image_panel img {
     width: 100%;
