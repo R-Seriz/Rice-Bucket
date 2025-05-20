@@ -283,7 +283,7 @@ video {
 
 .video-iframe {
     border: none;
-    height: auto;
+    height: 318px;
     width: 100%;
 }
 
