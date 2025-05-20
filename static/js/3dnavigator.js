@@ -415,7 +415,7 @@ function setupScene() {
         '2022': { 'radius': 20, 'avel': new THREE.Vector3(0.0001, 0.00003, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
         '2023': { 'radius': 24, 'avel': new THREE.Vector3(-0.0001, 0.00003, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
         '2024': { 'radius': 28, 'avel': new THREE.Vector3(-0.0002, -0.00005, 0), 'rot': new THREE.Vector3(0, 0, 0), 'pos': new THREE.Vector3(0, 0, 0) },
-        '2025': { 'radius': 32, 'avel': new THREE.Vector3(0.0002, -0.0001, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 4), 'pos': new THREE.Vector3(0, 0, 0) },
+        '2025': { 'radius': 32, 'avel': new THREE.Vector3(0.0002, -0.0001, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
         // '2022': { 'radius': 40, 'avel': new THREE.Vector3(0, 0, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
         // '2023': { 'radius': 44, 'avel': new THREE.Vector3(0, 0, 0), 'rot': new THREE.Vector3(0, 0, Math.PI / 2), 'pos': new THREE.Vector3(0, 0, 0) },
         // '2024': { 'radius': 48, 'avel': new THREE.Vector3(0, 0, 0), 'rot': new THREE.Vector3(0, 0, 0), 'pos': new THREE.Vector3(0, 0, 0) },
@@ -436,6 +436,7 @@ function setupScene() {
                 if (db[idx]['filetype'] === 0 || db[idx]['filetype'] === '1') elems.push(imagePanel(db[idx]));
                 if (db[idx]['filetype'] === 2) elems.push(audioPanel(db[idx]));
                 if (db[idx]['filetype'] === 3) elems.push(ytPanel(db[idx]));
+                if (db[idx]['filetype'] === 4) elems.push(ytPanel(db[idx]));
             }
             rings.push(new PanelRing(params['radius'], elems, 2 * Math.PI / elems.length, params['avel'], params['rot'], params['pos']));
         }
