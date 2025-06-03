@@ -7,3 +7,5 @@ static/.DS_Store
 static/assets/.DS_Store
 static/assets/family/.DS_Store
 uploads/
+env/
+venv/

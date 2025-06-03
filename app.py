@@ -1,40 +1,55 @@
-from flask import Flask, flash, redirect, render_template, request, jsonify, url_for, send_from_directory, make_response
-from werkzeug.utils import secure_filename
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.sql import func
 import os
 import argparse
 import hashlib
 from urllib.parse import urlparse, parse_qs
+from operator import itemgetter
+
+from flask import Flask, flash, redirect, render_template, request, jsonify, url_for, send_from_directory, make_response
+from werkzeug.utils import secure_filename
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import func
+from flask_login import (
+    LoginManager,
+    current_user,
+    login_required,
+    login_user,
+    logout_user,
+    UserMixin,
+)
+from dotenv import load_dotenv
+
+load_dotenv()
 
 UPLOAD_FOLDER = './uploads'
 TEMPLATE_FOLDER = './pages'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'mp3', 'mp4'}
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-
 app = Flask(__name__, template_folder=TEMPLATE_FOLDER)
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     'sqlite:///' + os.path.join(basedir, 'database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['SECRET_KEY'] = 'bob'
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 
 db = SQLAlchemy(app)
+with app.app_context():
+    db.create_all()
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 
-# Very good security practice :)
-users = {
-    '3d2ce9e6f831206186e356376a913dc7d440b1d7eb2f804d4b66f37449af58f4941027bbca79afe96144fdea13349c3c659c44f3157e75256e7b52315d2c3a6b': 'Rui',
-    '51279e6ba0c7f6655582898572536c131a32172b72d17c81b85380c712f4fde80b059f69a4d88adb4775c9685f1c0c5e844aa09c029b675e20254a8418428090': 'Kian',
-    '2fb637daa04c3a3e10ced82078fbe3986ae8e9396fd6a18c5581a264b08f4ff67884fce4db4f2b020b8ba93649b7fbfc1d035e4cf6fd6617cd4a4b5bc354a7a2': 'Niko',
-    '1f225fc643bc519fbc78ffdad7f97fc4eeb94712e48850b164aeac6607de956b70c971cc84abfdd6672cb0f2cb64ff37d75d07404c24d436161a6f3ccfee3fc9': 'Lila',
-    '7c86bf4762b742a0f9ba3c7116b6635911307aaed0e8ed9f27afcc2bd98e8ee6153ece7ea8fdd3cbe5a29ea3aebbe13e98385edb4b6efe4b2309cac459fa20e8': 'Kai',
-    '889794565c1b70b61f80b4185f677830c8d271b11045f856aee9ab42b6d7ec62f5e771167c05c9436e760d2ab7988a5bc2bc99bb59966e852aa207c05029a7d5': 'Erika',
-    'daf91e46b18758425ec2c52dd5603e28682e434fa72c6aee7e8cb90f527232f47380905a2024ea29a9295fc19c915b3c382b3b3899cbdf6ec8adcdc9356c41b8': 'Hiroya',
-    '9a15f5b2faf9677417b4dc03c4d15ec3b778edcc1741368096237e37ee5f26f0ab1133b64b716fbc616c68448a73a2677d69e1f66fe8e12ccb8d394fec8a0f5a': 'Aki',
-    'e84bd94197eb40cd72857ee3efa60d81c9adcb5927bdb67dfd2baebb55bc084490fe4e5cebce0abb85ec64597dcafa3a8ddeb8e0841862e934b5d2417aef4c12': 'Hana',
-}
+@login_manager.user_loader
+def load_user(user_id):
+    return db.session.get(User, user_id)
+
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    username = db.Column(db.String(250), nullable=False)
+    email = db.Column(db.String(250), unique=True, nullable=False)
+    password = db.Column(db.String(250), nullable=True)
 
 
 class FileEntry(db.Model):
@@ -73,39 +88,60 @@ def allowed_file(filename):
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('home.html', auth=current_user.is_authenticated)
 
 
 @app.route('/about')
 def about():
     return render_template('about.html', family_photos=[a for a in os.listdir('./static/assets/family') if
-                                                        a.split('.')[-1].upper() == 'JPG'])
+                                                        a.split('.')[-1].upper() == 'JPG'], auth=current_user.is_authenticated)
 
 
 @app.route('/directory')
+@login_required
 def directory():
     return render_template('directory.html', files=FileEntry.query.all())
 
 
+@app.route("/login", methods = ['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        user_query = User.query.filter_by(username=username).first()
+
+        if not user_query:
+            return "No such username", 400
+
+        if user_query.password != password:
+            return "Wrong password", 400
+
+        login_user(user_query)
+
+        return redirect(url_for('home'))
+    return render_template("login.html")
+
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("home"))
+
+
 @app.route('/feed')
+@login_required
 def member_feed():
     return render_template('feed.html')
 
 
 @app.route('/upload', methods=['GET', 'POST'])
+@login_required
 def upload():
-    if 'RB_MEMBER_CODE' not in request.cookies:
-        if request.method == 'POST':
-            cookie_hash = hashlib.sha512(bytes(request.form['memberid'], 'utf-8')).hexdigest()
-            if cookie_hash in users.keys():
-                resp = make_response(render_template('upload.html'))
-                resp.set_cookie('RB_MEMBER_CODE', cookie_hash)
-                return resp
-        return render_template('authenticate.html')
-
-    if request.cookies.get('RB_MEMBER_CODE') not in users.keys():
-        return render_template('authenticate.html')
-
     if request.method == 'POST':
         print(request.form)
         if request.form['filetype'] in ["3"]: # Check if filetype is YT link (logic prepared for expansion)
@@ -114,10 +150,10 @@ def upload():
             video = query["v"][0]
             db.session.add(FileEntry(author=request.form['author'], project_year=request.form['year'],
                                      project_month=request.form['month'], title=request.form['title'],
-                                     description=request.form['description'].replace('\\n','<br/>'), 
+                                     description=request.form['description'].replace('\\n','<br/>'),
                                      filetype=request.form['filetype'], filename=video))
             db.session.commit()
-        
+
         # check if the post request has the file part
         if 'file' not in request.files:
             flash('No file part')
@@ -133,7 +169,7 @@ def upload():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             db.session.add(FileEntry(author=request.form['author'], project_year=request.form['year'],
                                      project_month=request.form['month'], title=request.form['title'],
-                                     description=request.form['description'].replace('\\n','<br/>'), 
+                                     description=request.form['description'].replace('\\n','<br/>'),
                                      filetype=request.form['filetype'], filename=filename))
             db.session.commit()
     return render_template('upload.html')
@@ -145,20 +181,19 @@ def download_file(name):
 
 
 @app.route('/delete/<int:id>')
+@login_required
 def delete(id):
-    if request.cookies.get('RB_MEMBER_CODE') not in users.keys():
-        return redirect(url_for('upload'))
     file = FileEntry.query.filter(FileEntry.id == id).one()
     db.session.delete(file)
     db.session.commit()
-    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
+    if file.filetype in [0, 1, 2]:
+        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
     return render_template('directory.html', files=FileEntry.query.all())
 
 
 @app.route('/approve/<int:id>')
+@login_required
 def approve(id):
-    if request.cookies.get('RB_MEMBER_CODE') not in users.keys():
-        return redirect(url_for('upload'))
     file = FileEntry.query.filter(FileEntry.id == id).one()
     file.approved = not file.approved
     db.session.commit()
@@ -166,11 +201,10 @@ def approve(id):
 
 
 @app.route('/comment', methods=['POST'])
+@login_required
 def postComment():
-    if request.cookies.get('RB_MEMBER_CODE') not in users.keys():
-        return "UNAUTHORIZED"
     db.session.add(
-        CommentEntry(author=users[request.cookies.get('RB_MEMBER_CODE')], text=request.form['text'], fileentry_id=request.form['postid']))
+        CommentEntry(author=current_user.username, text=request.form['text'], fileentry_id=request.form['postid']))
     db.session.commit()
     return "OK"
 
@@ -183,9 +217,9 @@ def listComment(id):
 
 @app.route('/dbjson')
 def dbjson():
-    return jsonify([{'id': x.id, 'approved': x.approved, 'creation_date': x.created_at, 'project_year': x.project_year,
+    return jsonify(sorted([{'id': x.id, 'approved': x.approved, 'creation_date': x.created_at, 'project_year': x.project_year,
                      'project_month': x.project_month, 'author': x.author, 'title': x.title,
-                     'description': x.description, 'filetype': x.filetype, 'filename': x.filename} for x in FileEntry.query.all()])
+                     'description': x.description, 'filetype': x.filetype, 'filename': x.filename} for x in FileEntry.query.all()], reverse=True, key=itemgetter('project_year', 'project_month')))
 
 
 @app.errorhandler(404)
@@ -197,10 +231,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser("RBSite App")
     parser.add_argument("prod", help="An integer specifying to run in production (1 for yes, 0 for no)", type=int)
     args = parser.parse_args()
-    if args.prod:
+    if args.prod == 2:
+        with app.app_context():
+            db.create_all()
+            new_user = User(username=input("Enter username: "), email=input("Enter email: "), password=input("Enter password: "))
+            db.session.add(new_user)
+            db.session.commit()
+    elif args.prod == 1:
         from waitress import serve
 
         print("Started running production thing")
         serve(app, host="0.0.0.0", port=80)
-    else:
+    elif args.prod == 0:
         app.run(debug=True, port=3000, host='0.0.0.0')

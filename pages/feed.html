@@ -1,24 +1,297 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Rice Bucket</title>
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="{{ url_for('static', filename='css/main.css') }}"
+        />
+        <link
+            rel="icon"
+            type="image/x-icon"
+            href="{{ url_for('static', filename='assets/favicon_io/favicon.ico') }}"
+        />
+        <style>
+            #pillar {
+                padding: 10px 20px;
+            }
 
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rice Bucket</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon_io/favicon.ico') }}">
-</head>
+            .gallery {
+                break-inside: avoid;
+            }
 
-<body class="no-scroll">
-    <div class="navbar">
-        <a href="{{ url_for('home') }}" style="text-decoration:none">Home</a>
-        <a href="{{ url_for('about') }}" style="text-decoration:none">About</a>
-        <a class="active" href="{{ url_for('member_feed') }}" style="text-decoration:none">Feed</a>
-        <a href="{{ url_for('upload') }}" style="text-decoration:none">Upload</a>
-        <a href="{{ url_for('directory') }}" style="text-decoration:none">Directory</a>
-    </div>
+            div.gallery img {
+                width: 100%;
+                height: auto;
+                display: inline-block;
+            }
 
-    <div class="container">
-    </div>
-</body>
+            .image-wrapper {
+                padding: 5px;
+                column-count: 3;
+                column-gap: 2px;
+            }
 
+            .responsive {
+                width: auto;
+                padding: 5px;
+            }
+
+            .modal {
+                display: none;
+                margin-top: 32px;
+                align-items: center;
+                justify-content: center;
+                position: fixed;
+                z-index: 10;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.75);
+            }
+
+            #previewContainer::-webkit-scrollbar {
+                display: none;
+            }
+
+            #previewContainer {
+                padding-top: 10%;
+                width: 80%;
+                height: 100%;
+                overflow-y: scroll;
+                -ms-overflow-style: none; /* IE and Edge */
+                scrollbar-width: none; /* Firefox */
+                /* mask-image: linear-gradient(
+                    to bottom,
+                    black calc(100% - 48px),
+                    transparent 100%
+                ); */
+            }
+
+            #post-title {
+                color: #ddffff;
+                font-family: "Chicago", monospace;
+                font-size: 25px;
+            }
+
+            #separator {
+                display: flex;
+                justify-content: space-between;
+            }
+
+            #post-author,
+            #post-date,
+            #post-description {
+                color: #bbdddd;
+                font-family: monospace;
+            }
+
+            #post-date {
+                padding-top: 10px;
+            }
+
+            #post-author {
+                margin-bottom: 20px;
+            }
+
+            #post-description {
+                margin-bottom: 15px;
+            }
+
+            #post-content {
+                max-height: 100%;
+            }
+
+            .modal-content {
+                margin: auto;
+                display: block;
+                max-width: 95%;
+            }
+
+            body.modal-open {
+                overflow: hidden;
+            }
+
+            #feed-title {
+                color: #112222;
+                font-family: "Chicago", monospace;
+                font-size: 40px;
+                text-align: center;
+                padding-top: 25px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="navbar" style="z-index: 106">
+            <a href="{{ url_for('home') }}" style="text-decoration: none"
+                >Home</a
+            >
+            <a href="{{ url_for('about') }}" style="text-decoration: none"
+                >About</a
+            >
+            <a
+                class="active"
+                href="{{ url_for('member_feed') }}"
+                style="text-decoration: none"
+                >Feed</a
+            >
+            <a href="{{ url_for('upload') }}" style="text-decoration: none"
+                >Upload</a
+            >
+            <a href="{{ url_for('directory') }}" style="text-decoration: none"
+                >Directory</a
+            >
+            <a href="{{ url_for('logout') }}" style="text-decoration: none"
+                >Logout</a
+            >
+        </div>
+
+        <div class="container">
+            <div id="feed-title">Project Feed</div>
+            <div class="image-wrapper" id="imageGallery"></div>
+        </div>
+
+        <div id="postPreviewModal" class="modal" onclick="closePost()">
+            <div id="previewContainer">
+                <div id="separator">
+                    <div id="post-title">Hello world</div>
+                    <div id="post-date">Jan, 2025</div>
+                </div>
+                <div id="post-author">by Kian and Rui</div>
+                <div id="post-description">
+                    This is a test, you shouldn't be seeing this...
+                </div>
+                <div id="post-content"></div>
+            </div>
+        </div>
+        <script>
+            var db;
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/dbjson");
+            xhr.onload = function (event) {
+                db = JSON.parse(event.target.response);
+                for (let idx in db) {
+                    console.log(db[idx]);
+                    let post = db[idx];
+                    addPost(
+                        post.title,
+                        post.author,
+                        post.description,
+                        post.project_year,
+                        post.project_month,
+                        post.filetype,
+                        post.filename,
+                        idx,
+                    );
+                }
+            };
+
+            xhr.onerror = function () {
+                console.error("Failed to fetch data from /dbjson");
+            };
+
+            xhr.send();
+
+            let gallery = document.getElementById("imageGallery");
+            function addPost(
+                title,
+                author,
+                description,
+                year,
+                month,
+                filetype,
+                filename,
+                index,
+            ) {
+                let postOuter = document.createElement("div");
+                postOuter.classList.add("responsive");
+                let postInner = document.createElement("div");
+                postInner.classList.add("gallery");
+                postOuter.appendChild(postInner);
+                var postContent;
+                if (filetype == 0 || filetype == 1) {
+                    postContent = document.createElement("img");
+                    postContent.src = "download/" + filename;
+                    postContent.onclick = () => {
+                        enlargePost(index);
+                    };
+                }
+                if (filetype == 2) {
+                    return; // Skipping mp3s for now.
+                }
+                if (filetype == 3) {
+                    postContent = document.createElement("img");
+                    postContent.src =
+                        "http://img.youtube.com/vi/" +
+                        filename +
+                        "/maxresdefault.jpg";
+                    postContent.onclick = () => {
+                        enlargePost(index);
+                    };
+                }
+                postInner.appendChild(postContent);
+                gallery.appendChild(postOuter);
+            }
+
+            function enlargePost(index) {
+                const modal = document.getElementById("postPreviewModal");
+                const contentDiv = document.getElementById("post-content");
+                contentDiv.innerText = "";
+                let post = db[index];
+                let filetype = post.filetype;
+                var postContent;
+                if (filetype == 0 || filetype == 1) {
+                    postContent = document.createElement("img");
+                    postContent.src = "download/" + post.filename;
+                }
+                if (filetype == 2) {
+                    postContent = document.createElement("div"); // Skipping mp3s for now.
+                }
+                if (filetype == 3) {
+                    postContent = document.createElement("iframe");
+                    postContent.src =
+                        "https://www.youtube.com/embed/" + post.filename;
+                    postContent.height = 450;
+                    postContent.width = 800;
+                }
+                let months = [
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec",
+                ];
+
+                document.getElementById("post-title").innerText = post.title;
+                document.getElementById("post-author").innerText =
+                    "by " + post.author;
+                document.getElementById("post-date").innerText =
+                    months[post.project_month - 1] + ", " + post.project_year;
+                document.getElementById("post-description").innerText =
+                    post.description;
+
+                postContent.classList.add("modal-content");
+                contentDiv.appendChild(postContent);
+                modal.style.display = "flex";
+                document.body.classList.add("modal-open");
+            }
+
+            function closePost() {
+                const modal = document.getElementById("postPreviewModal");
+                modal.style.display = "none";
+                document.body.classList.remove("modal-open");
+            }
+        </script>
+    </body>
 </html>

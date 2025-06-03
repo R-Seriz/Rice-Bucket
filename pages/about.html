@@ -1,218 +1,280 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Rice Bucket</title>
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="{{ url_for('static', filename='css/main.css') }}"
+        />
+        <link
+            rel="icon"
+            type="image/x-icon"
+            href="{{ url_for('static', filename='assets/favicon_io/favicon.ico') }}"
+        />
+    </head>
 
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rice Bucket</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon_io/favicon.ico') }}">
-</head>
-
-<body>
-
-    <div class="navbar">
-        <a href="{{ url_for('home') }}" style="text-decoration:none">Home</a>
-        <a class="active" href="{{ url_for('about') }}" style="text-decoration:none">About</a>
-        <a href="{{ url_for('member_feed') }}" style="text-decoration:none">Feed</a>
-        <a href="{{ url_for('upload') }}" style="text-decoration:none">Upload</a>
-        <a href="{{ url_for('directory') }}" style="text-decoration:none">Directory</a>
-    </div>
-
-    <div class="container">
-        <div class="sectionheader">About</div>
-        <div id="about">
-            <div class="p-text">
-                The inception of Rice Bucket began from an unserious thought I conceived during my junior year in high
-                school when I felt inspired by the passionate creators who were also close and dear friends of mine. The
-                name was something K.K. and I came up with over lunch.<br><br>
-
-                The basic idea was to form a close-knit
-                group of companions who would work together as creatives to produce works across a blend of mediums. Or, something like that.
-                <br><br>
-
-                And we're still here. Welcome to Rice Bucket.<br><br>
-
-                - R.S.
-            </div>
+    <body>
+        <div class="navbar">
+            <a href="{{ url_for('home') }}" style="text-decoration: none"
+                >Home</a
+            >
+            <a
+                class="active"
+                href="{{ url_for('about') }}"
+                style="text-decoration: none"
+                >About</a
+            >
+            {% if auth %}
+            <a href="{{ url_for('member_feed') }}" style="text-decoration: none"
+                >Feed</a
+            >
+            <a href="{{ url_for('upload') }}" style="text-decoration: none"
+                >Upload</a
+            >
+            <a href="{{ url_for('directory') }}" style="text-decoration: none"
+                >Directory</a
+            >
+            <a href="{{ url_for('logout') }}" style="text-decoration: none"
+                >Logout</a
+            >
+            {% else %}
+            <a href="{{ url_for('login') }}" style="text-decoration: none"
+                >Login</a
+            >
+            {% endif %}
         </div>
 
-        <div class="sectionheader">Links</div>
-        <div id="links">
-            <div class="p-text">
-                <a href="https://www.instagram.com/ricebucket.official" class="instagram-link"
-                    style="text-decoration:none; color:black" target="_blank">Instagram</a> <br>
-                <a href="https://www.youtube.com/@ricebucket.official" class="youtube-link"
-                    style="text-decoration:none; color:black" target="_blank">Youtube</a>
-            </div>
-        </div>
+        <div class="container">
+            <div class="sectionheader">About</div>
+            <div id="about">
+                <div class="p-text">
+                    The inception of Rice Bucket began from an unserious thought
+                    I conceived during my junior year in high school when I felt
+                    inspired by the passionate creators who were also close and
+                    dear friends of mine. The name was something K.K. and I came
+                    up with over lunch.<br /><br />
 
-        <div class="sectionheader">Log</div>
+                    The basic idea was to form a close-knit group of companions
+                    who would work together as creatives to produce works across
+                    a blend of mediums. Or, something like that.
+                    <br /><br />
 
-        <table id="log_table">
-            <tr>
-                <td>05 01 2025</td>
-                <td><a href="https://youtube.com/playlist?list=OLAK5uy_mm9U0vui9RUlRqMM-_GQsctOCm2Kp0W8k&si=1Uc_jviWJSanZHCj" target="_blank"
-                        style="text-decoration:none; color:black">Clover</a> by Lila Anais</td>
-            </tr>            
-            <tr>
-                <td>06 16 2024</td>
-                <td>Hosted by R.S. - Day 2</td>
-            </tr>
-            <tr>
-                <td>06 15 2024</td>
-                <td>Hosted by R.S. - Day 1</td>
-            </tr>
-            <tr>
-                <td>05 28 2024</td>
-                <td>Undiscovered by Erika Kasuga - Opening Day</td>
-            </tr>
-            <tr>
-                <td>03 14 2024</td>
-                <td><a href="https://youtu.be/izJjTB8Vjls?si=UVTuHT0K9sVlvFvB" target="_blank"
-                        style="text-decoration:none; color:black">Krystals Vol. 1</a> by kai</td>
-            </tr>
-            <tr>
-                <td>02 11 2024</td>
-                <td>Third Rice Bucket Dinner</td>
-            </tr>
-            <tr>
-                <td>01 04 2024</td>
-                <td>Hosted by S.K.P.</td>
-            </tr>
-            <tr>
-                <td>06 17 2023</td>
-                <td>Second Rice Bucket Dinner</td>
-            </tr>
-            <tr>
-                <td>01 06 2023</td>
-                <td><a href="https://youtu.be/5ok298U3164" target="_blank"
-                        style="text-decoration:none; color:black">Half Past Sleep</a></td>
-            </tr>
-            <tr>
-                <td>11 24 2022</td>
-                <td>First Rice Bucket Dinner</td>
-            </tr>
-        </table>
+                    And we're still here. Welcome to Rice Bucket.<br /><br />
 
-
-        <div class="sectionheader">Photo Album</div>
-        <div class="image-wrapper" id="imageGallery">
-            {% for path in family_photos %}
-            <div class="responsive">
-                <div class="gallery">
-                    <a>
-                        <img src="{{ url_for('static', filename='assets/family/' + path) }}" alt="{{ path }}"
-                            onclick="enlarge_img(this)">
-                    </a>
+                    - R.S.
                 </div>
             </div>
-            {% endfor %}
+
+            <div class="sectionheader">Links</div>
+            <div id="links">
+                <div class="p-text">
+                    <a
+                        href="https://www.instagram.com/ricebucket.official"
+                        class="instagram-link"
+                        style="text-decoration: none; color: black"
+                        target="_blank"
+                        >Instagram</a
+                    >
+                    <br />
+                    <a
+                        href="https://www.youtube.com/@ricebucket.official"
+                        class="youtube-link"
+                        style="text-decoration: none; color: black"
+                        target="_blank"
+                        >Youtube</a
+                    >
+                </div>
+            </div>
+
+            <div class="sectionheader">Log</div>
+
+            <table id="log_table">
+                <tr>
+                    <td>05 01 2025</td>
+                    <td>
+                        <a
+                            href="https://youtube.com/playlist?list=OLAK5uy_mm9U0vui9RUlRqMM-_GQsctOCm2Kp0W8k&si=1Uc_jviWJSanZHCj"
+                            target="_blank"
+                            style="text-decoration: none; color: black"
+                            >Clover</a
+                        >
+                        by Lila Anais
+                    </td>
+                </tr>
+                <tr>
+                    <td>06 16 2024</td>
+                    <td>Hosted by R.S. - Day 2</td>
+                </tr>
+                <tr>
+                    <td>06 15 2024</td>
+                    <td>Hosted by R.S. - Day 1</td>
+                </tr>
+                <tr>
+                    <td>05 28 2024</td>
+                    <td>Undiscovered by Erika Kasuga - Opening Day</td>
+                </tr>
+                <tr>
+                    <td>03 14 2024</td>
+                    <td>
+                        <a
+                            href="https://youtu.be/izJjTB8Vjls?si=UVTuHT0K9sVlvFvB"
+                            target="_blank"
+                            style="text-decoration: none; color: black"
+                            >Krystals Vol. 1</a
+                        >
+                        by kai
+                    </td>
+                </tr>
+                <tr>
+                    <td>02 11 2024</td>
+                    <td>Third Rice Bucket Dinner</td>
+                </tr>
+                <tr>
+                    <td>01 04 2024</td>
+                    <td>Hosted by S.K.P.</td>
+                </tr>
+                <tr>
+                    <td>06 17 2023</td>
+                    <td>Second Rice Bucket Dinner</td>
+                </tr>
+                <tr>
+                    <td>01 06 2023</td>
+                    <td>
+                        <a
+                            href="https://youtu.be/5ok298U3164"
+                            target="_blank"
+                            style="text-decoration: none; color: black"
+                            >Half Past Sleep</a
+                        >
+                    </td>
+                </tr>
+                <tr>
+                    <td>11 24 2022</td>
+                    <td>First Rice Bucket Dinner</td>
+                </tr>
+            </table>
+
+            <div class="sectionheader">Photo Album</div>
+            <div class="image-wrapper" id="imageGallery">
+                {% for path in family_photos %}
+                <div class="responsive">
+                    <div class="gallery">
+                        <a>
+                            <img
+                                src="{{ url_for('static', filename='assets/family/' + path) }}"
+                                alt="{{ path }}"
+                                onclick="enlarge_img(this)"
+                            />
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
 
-    </div>
+        <div id="imagePreviewModal" class="modal" onclick="close_img()">
+            <img class="modal-content" id="previewImg" />
+        </div>
+    </body>
 
-    <div id="imagePreviewModal" class="modal" onclick="close_img()">
-        <img class="modal-content" id="previewImg">
-    </div>
+    <style>
+        td a:hover {
+            text-decoration: underline !important;
+        }
 
-</body>
+        .gallery {
+            break-inside: avoid;
+        }
 
-<style>
-    td a:hover {
-        text-decoration: underline !important;
-    }
+        div.gallery img {
+            width: 100%;
+            height: auto;
+            display: inline-block;
+        }
 
-    .gallery {
-        break-inside: avoid;
-    }
+        .image-wrapper {
+            padding: 5px;
+            column-count: 3;
+            column-gap: 2px;
+        }
 
-    div.gallery img {
-        width: 100%;
-        height: auto;
-        display: inline-block;
-    }
+        .responsive {
+            width: auto;
+            padding: 5px;
+        }
 
-    .image-wrapper {
-        padding: 5px;
-        column-count: 3;
-        column-gap: 2px;
-    }
+        .clearfix:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
 
-    .responsive {
-        width: auto;
-        padding: 5px;
-    }
+        #log_table {
+            width: 100%;
+            margin: 0 30px;
+            font-family:
+                JetBrains Mono,
+                monospace;
+        }
 
-    .clearfix:after {
-        content: "";
-        display: table;
-        clear: both;
-    }
+        #log_table td:nth-child(1) {
+            width: 150px;
+        }
 
-    #log_table {
-        width: 100%;
-        margin: 0 30px;
-        font-family: JetBrains Mono, monospace;
-    }
+        #about {
+            margin: 0 35px;
+        }
 
-    #log_table td:nth-child(1) {
-        width: 150px;
-    }
+        #links {
+            margin: 0 35px;
+        }
 
-    #about {
-        margin: 0 35px;
-    }
+        a.youtube-link:hover,
+        a.instagram-link:hover {
+            text-decoration: underline !important;
+        }
 
-    #links {
-        margin: 0 35px;
-    }
+        .modal {
+            display: none;
+            margin-top: 32px;
+            align-items: center;
+            position: fixed;
+            z-index: 1005;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
 
-    a.youtube-link:hover,
-    a.instagram-link:hover {
-        text-decoration: underline !important;
-    }
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 80%;
+            max-height: 80%;
+        }
 
-    .modal {
-        display: none;
-        margin-top: 32px;
-        align-items: center;
-        position: fixed;
-        z-index: 1005;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        background-color: rgba(0, 0, 0, 0.6);
-    }
+        body.modal-open {
+            overflow: hidden;
+        }
+    </style>
 
-    .modal-content {
-        margin: auto;
-        display: block;
-        max-width: 80%;
-        max-height: 80%;
-    }
+    <script>
+        function enlarge_img(imgElement) {
+            const modal = document.getElementById("imagePreviewModal");
+            const modalImg = document.getElementById("previewImg");
+            modalImg.src = imgElement.src;
+            modal.style.display = "flex";
+            document.body.classList.add("modal-open");
+        }
 
-    body.modal-open {
-        overflow: hidden;
-    }
-
-</style>
-
-<script>
-    function enlarge_img(imgElement) {
-        const modal = document.getElementById("imagePreviewModal");
-        const modalImg = document.getElementById("previewImg");
-        modalImg.src = imgElement.src;
-        modal.style.display = "flex";
-        document.body.classList.add("modal-open");
-    }
-
-    function close_img() {
-        const modal = document.getElementById("imagePreviewModal");
-        modal.style.display = "none";
-        document.body.classList.remove("modal-open");
-    }
-</script>
-
+        function close_img() {
+            const modal = document.getElementById("imagePreviewModal");
+            modal.style.display = "none";
+            document.body.classList.remove("modal-open");
+        }
+    </script>
 </html>
