@@ -102,6 +102,11 @@ def about():
 def directory():
     return render_template('directory.html', files=FileEntry.query.all())
 
+@app.route('/members')
+@login_required
+def members():
+    return render_template('members.html')
+
 
 @app.route("/login", methods = ['GET', 'POST'])
 def login():
@@ -144,7 +149,7 @@ def member_feed():
 def upload():
     if request.method == 'POST':
         print(request.form)
-        if request.form['filetype'] in ["3"]: # Check if filetype is YT link (logic prepared for expansion)
+        if request.form['filetype'] in ["4"]: # Check if filetype is YT link (logic prepared for expansion)
             url_data = urlparse(request.form['youtube-link'])
             query = parse_qs(url_data.query)
             video = query["v"][0]
