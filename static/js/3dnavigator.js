@@ -435,7 +435,7 @@ function setupScene() {
                 console.log(db[idx]);
                 if (db[idx]['filetype'] === 0 || db[idx]['filetype'] === '1') elems.push(imagePanel(db[idx]));
                 if (db[idx]['filetype'] === 2) elems.push(audioPanel(db[idx]));
-                if (db[idx]['filetype'] === 3) elems.push(ytPanel(db[idx]));
+                if (db[idx]['filetype'] === 3) elems.push(videoPanel(db[idx]));
                 if (db[idx]['filetype'] === 4) elems.push(ytPanel(db[idx]));
             }
             rings.push(new PanelRing(params['radius'], elems, 2 * Math.PI / elems.length, params['avel'], params['rot'], params['pos']));
