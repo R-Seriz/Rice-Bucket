@@ -15,16 +15,20 @@
         <a href="{{ url_for('home') }}" style="text-decoration:none">Home</a>
         <a href="{{ url_for('about') }}" style="text-decoration:none">About</a>
         <a href="{{ url_for('member_feed') }}" style="text-decoration:none">Feed</a>
+        <a href="{{ url_for('members') }}" style="text-decoration: none">Members</a>
         <a class="active" href="{{ url_for('upload') }}" style="text-decoration:none">Upload</a>
         <a href="{{ url_for('directory') }}" style="text-decoration:none">Directory</a>
-        <a href="{{ url_for('logout') }}" style="text-decoration:none">Logout</a>
+        <div class="nav-right">
+            <a href="{{ url_for('logout') }}" style="text-decoration:none">Logout</a>
+        </div>
     </div>
 
     <div class="container">
         <div class="sectionheader">Upload</div>
         <p id="upload-instructions">
             Submission must include a Title, Author/s, Year (YYYY), and Month (MM) <br>
-            Accepted file types: <b>.JPG, .MP3, .MP4</b></p>
+            Accepted file types: <b>.JPG, .PNG, .MP3, .MP4, YouTube Link</b><br>
+            Accepted years: 2022 to present</p>
         <form id="uploader" method=post method=post enctype=multipart/form-data>
             <div class="upload-forms">
                 <select id="file-type" name=filetype form="uploader" required>
@@ -32,7 +36,8 @@
                     <option value="0">.JPG</option>
                     <option value="1">.PNG</option>
                     <option value="2">.MP3</option>
-                    <option value="3">YouTube Link</option>
+                    <option value="3">.MP4</option>
+                    <option value="4">YouTube Link</option>
                 </select>
             </div>
             <div class="upload-forms">
@@ -233,7 +238,7 @@
         const selectedType = fileTypeDropdown.value;
 
         // Validate based on selected file type
-        if (selectedType === '3') {
+        if (selectedType === '4') {
             if (!youtubeInput.value.trim() || !/^https:\/\/(www\.)?youtube\.com\/watch\?v=/.test(youtubeInput.value)) {
                 isValid = false;
                 alert('PLEASE ENTER A VALID YOUTUBE LINK');
@@ -276,7 +281,7 @@
     const youtubeInput = document.getElementById('youtube-link');
 
     fileTypeDropdown.addEventListener('change', function () {
-        if (this.value === '3') {
+        if (this.value === '4') {
             fileUploadInput.disabled = true;
             fileUploadInput.parentElement.style.display = 'none';
             youtubeContainer.style.display = 'block';

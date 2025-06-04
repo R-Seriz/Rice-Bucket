@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rice Bucket</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon_io/favicon.ico') }}" />
+</head>
+
+<body>
+    <div class="navbar">
+        <a href="{{ url_for('home') }}" style="text-decoration: none">Home</a>
+        <a href="{{ url_for('about') }}" style="text-decoration: none">About</a>
+        <a href="{{ url_for('member_feed') }}" style="text-decoration: none">Feed</a>
+        <a class="active" href="{{ url_for('members') }}" style="text-decoration: none">Members</a>
+        <a href="{{ url_for('upload') }}" style="text-decoration: none">Upload</a>
+        <a href="{{ url_for('directory') }}" style="text-decoration: none">Directory</a>
+        <div class="nav-right">
+            <a href="{{ url_for('logout') }}" style="text-decoration:none">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="user-profile">
+            <div id="profile-window">
+                <div id="window-bar">
+                    <div class="button-group">
+                        <div class="button">
+                            <div class="minimize"></div>
+                        </div>
+                        <div class="button">
+                            <div class="full-screen-1"></div>
+                            <div class="full-screen-2"></div>
+                        </div>
+                        <div class="button">
+                            <div class="close"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="sectionheader">Members</div>
+        <div id="members-lists">
+            <div class="p-text"><strong>Board</strong><br>
+                rseriz<br>
+                kian_benner<br>
+                suns3t.peach<br>
+                plut0id<br>
+                kaikingvevo<br>
+            </div>
+        </div>
+        <div id="members-lists">
+            <div class="p-text"><strong>Offical Rice Bucket</strong><br>
+                erip3a<br>
+                hhanaito<br>
+                hidomokohai<br>
+                bruteforcegod<br>
+                shaunkonopeck<br>
+                wordnvisual<br>
+                ryan.ondo<br>
+                orinseltzer<br>
+                jnb_www<br>
+            </div>
+        </div>
+        <div id="members-lists">
+            <div class="p-text"><strong>Honorary Rice Bucket</strong><br>
+                alain.i1<br>
+                zvi_gomez<br>
+                davidfconway<br>
+                sumiye.a<br>
+                gothic.hermaphrodite<br>
+            </div>
+        </div>
+</body>
+
+<style>
+    #members-lists {
+        margin-left: 35px;
+        margin-bottom: 20px;
+    }
+
+    #profile-window {
+        top: 35%;
+        right: 2%;
+    }
+
+    #window-bar {
+        position: relative;
+        height: 30px;
+        width: calc(100% - 10px);
+        background: linear-gradient(90deg, #000b7c, #377cc6);
+        border-bottom: 2px solid rgb(192, 192, 192);
+        float: left;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 16px;
+        color: white;
+        font-family: 'Chicago';
+        padding-left: 10px;
+    }
+
+    .user-profile {
+        position: fixed;
+        z-index: 10;
+        width: 480px;
+        height: 360px;
+        margin-left: 30vw;
+        margin-top: 30vh;
+        box-shadow: -1.5px -1.5px #e0dede, -1.5px 0 #e0dede, 0 -1.5px #e0dede, -3px -3px white, -3px 0 white, 0 -3px white, 1.5px 1.5px #818181, 0 1.5px #818181, 1.5px 0 #818181, 1.5px -1.5px #e0dede, -1.5px 1.5px #818181, -3px 1.5px white, -3px 3px black, 3px 3px black, 3px 0 black, 0 3px black, 1.5px -3px white, 3px -3px black;
+    }
+</style>
+
+</html>

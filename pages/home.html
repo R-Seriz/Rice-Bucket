@@ -24,11 +24,16 @@
     <a href="{{ url_for('about') }}" style="text-decoration:none">About</a>
     {% if auth %}
     <a href="{{ url_for('member_feed') }}" style="text-decoration:none">Feed</a>
+    <a href="{{ url_for('members') }}" style="text-decoration: none">Members</a>
     <a href="{{ url_for('upload') }}" style="text-decoration:none">Upload</a>
     <a href="{{ url_for('directory') }}" style="text-decoration:none">Directory</a>
-    <a href="{{ url_for('logout') }}" style="text-decoration:none">Logout</a>
+    <div class="nav-right">
+      <a href="{{ url_for('logout') }}" style="text-decoration:none">Logout</a>
+    </div>
     {% else %}
-    <a href="{{ url_for('login') }}" style="text-decoration:none">Login</a>
+    <div class="nav-right">
+      <a href="{{ url_for('login') }}" style="text-decoration:none">Login</a>
+    </div>
     {% endif %}
   </div>
 
