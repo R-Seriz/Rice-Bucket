@@ -8,7 +8,7 @@
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon_io/favicon.ico') }}" />
 </head>
 
-<body>
+<body class="no-scroll">
     <div class="navbar">
         <a href="{{ url_for('home') }}" style="text-decoration: none">Home</a>
         <a href="{{ url_for('about') }}" style="text-decoration: none">About</a>
@@ -22,73 +22,59 @@
     </div>
 
     <div class="container">
-        <div class="user-profile">
-            <div id="profile-window">
-                <div id="window-bar">
-                    <div class="button-group">
-                        <div class="button">
-                            <div class="minimize"></div>
-                        </div>
-                        <div class="button">
-                            <div class="full-screen-1"></div>
-                            <div class="full-screen-2"></div>
-                        </div>
-                        <div class="button">
-                            <div class="close"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="sectionheader">Members</div>
-        <div id="members-lists">
-            <div class="p-text"><strong>Board</strong><br>
-                rseriz<br>
-                kian_benner<br>
-                suns3t.peach<br>
-                plut0id<br>
-                kaikingvevo<br>
-            </div>
-        </div>
-        <div id="members-lists">
-            <div class="p-text"><strong>Offical Rice Bucket</strong><br>
-                erip3a<br>
-                hhanaito<br>
-                hidomokohai<br>
-                bruteforcegod<br>
-                shaunkonopeck<br>
-                wordnvisual<br>
-                ryan.ondo<br>
-                orinseltzer<br>
-                jnb_www<br>
-            </div>
-        </div>
-        <div id="members-lists">
-            <div class="p-text"><strong>Honorary Rice Bucket</strong><br>
-                alain.i1<br>
-                zvi_gomez<br>
-                davidfconway<br>
-                sumiye.a<br>
-                gothic.hermaphrodite<br>
-            </div>
-        </div>
+        <div id="row1" class="folder-row"></div>
+        <div id="row2" class="folder-row"></div>
+        <div id="row3" class="folder-row"></div>
 </body>
 
 <style>
-    #members-lists {
-        margin-left: 35px;
-        margin-bottom: 20px;
+    .folder-row {
+        display: flex;
+        flex-wrap: wrap;
     }
 
-    #profile-window {
-        top: 35%;
-        right: 2%;
+    .profile {
+        display: inline-block;
+        margin: 5px;
+        padding: 5px;
+        width: 95px;
+        height: 95px;
+        cursor: default;
+        text-align: center;
+        border: 1.5px dashed transparent;
+        box-sizing: border-box;
     }
 
-    #window-bar {
-        position: relative;
-        height: 30px;
-        width: calc(100% - 10px);
+    .profile:hover {
+        border: 1.5px dashed #ccc;
+    }
+
+
+    .profile img {
+        width: 60px;
+        height: auto;
+    }
+
+    .profile-name {
+        font-family: JetBrains Mono, monospace;
+        font-size: 11px;
+        color: black;
+        text-align: center;
+    }
+
+    .folder-window {
+        position: absolute;
+        cursor: default;
+        background-color: white;
+        width: 750px;
+        height: 500px;
+        z-index: 15;
+        box-shadow: -2px -2px #e0dede, -2px 0 #e0dede, 0 -2px #e0dede, -4px -4px white, -4px 0 white, 0 -4px white, 2px 2px #818181, 0 2px #818181, 2px 0 #818181, 2px -2px #e0dede, -2px 2px #818181, -4px 2px white, -4px 4px black, 4px 4px black, 4px 0 black, 0 4px black, 2px -4px white, 4px -4px black;
+    }
+
+    .folder-header {
+        height: 20px;
+        width: 730px;
         background: linear-gradient(90deg, #000b7c, #377cc6);
         border-bottom: 2px solid rgb(192, 192, 192);
         float: left;
@@ -98,18 +84,109 @@
         font-size: 16px;
         color: white;
         font-family: 'Chicago';
-        padding-left: 10px;
+        padding: 5px 10px;
+
     }
 
-    .user-profile {
-        position: fixed;
-        z-index: 10;
-        width: 480px;
-        height: 360px;
-        margin-left: 30vw;
-        margin-top: 30vh;
-        box-shadow: -1.5px -1.5px #e0dede, -1.5px 0 #e0dede, 0 -1.5px #e0dede, -3px -3px white, -3px 0 white, 0 -3px white, 1.5px 1.5px #818181, 0 1.5px #818181, 1.5px 0 #818181, 1.5px -1.5px #e0dede, -1.5px 1.5px #818181, -3px 1.5px white, -3px 3px black, 3px 3px black, 3px 0 black, 0 3px black, 1.5px -3px white, 3px -3px black;
+    .folder-content {
+        padding: 10px;
     }
 </style>
+
+
+<script>
+    /* folder creation */
+    const row1Users = ['rseriz', 'kian_benner', 'suns3t.peach', 'plut0id', 'kaikingvevo'];
+    const row2Users = ['erip3a', 'hhanaito', 'hidomokohai', 'bruteforcegod', 'shaunkonopeck', 'wordnvisual', 'ryan.ondo', 'orinseltzer', 'jnb_www'];
+    const row3Users = [];
+
+    function createFolderIcon(username) {
+        const div = document.createElement('div');
+        div.className = 'profile';
+        div.onclick = () => openFolder(username);
+
+        const img = document.createElement('img');
+        img.src = '/static/assets/icons/folder icon.png';
+
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'profile-name';
+        nameDiv.textContent = username;
+
+        div.appendChild(img);
+        div.appendChild(nameDiv);
+
+        return div;
+    }
+
+    const rows = [
+        { users: row1Users, element: document.getElementById('row1') },
+        { users: row2Users, element: document.getElementById('row2') },
+        { users: row3Users, element: document.getElementById('row3') },
+    ];
+
+    rows.forEach(row => {
+        row.users.forEach(username => {
+            const folderIcon = createFolderIcon(username);
+            row.element.appendChild(folderIcon);
+        });
+    });
+
+    /* folder-window  creation */
+    let zIndexCounter = 1000;
+
+    function openFolder(username) {
+        const folder = document.createElement('div');
+        folder.className = 'folder-window';
+        folder.style.top = `20vh`;
+        folder.style.left = `25vw`;
+        folder.style.zIndex = ++zIndexCounter;
+
+        folder.innerHTML = `
+        <div class="folder-header">
+            <span>${username}</span>
+            <div class="button-group">
+                <div class="button">
+                    <div class="minimize"></div>
+                </div>
+                <div class="button">
+                    <div class="full-screen-1"></div>
+                    <div class="full-screen-2"></div>
+                </div>
+                <div class="button" onclick="this.parentElement.parentElement.parentElement.remove()">
+                    <div class="close"></div>
+                </div>
+            </div>
+        </div>
+        <div class="folder-content">
+          <p>Profile window for <strong>${username}</strong></p>
+        </div>
+      `;
+
+        folder.addEventListener('mousedown', (e) => startDrag(e, folder));
+
+        document.body.appendChild(folder);
+    }
+
+    function startDrag(e, el) {
+        e.preventDefault();
+
+        let offsetX = e.clientX - el.getBoundingClientRect().left;
+        let offsetY = e.clientY - el.getBoundingClientRect().top;
+
+        function onMouseMove(e) {
+            el.style.left = `${e.clientX - offsetX}px`;
+            el.style.top = `${e.clientY - offsetY}px`;
+            el.style.zIndex = ++zIndexCounter;
+        }
+
+        function onMouseUp() {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    }
+</script>
 
 </html>
