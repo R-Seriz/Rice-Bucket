@@ -196,11 +196,11 @@
 
     // Show information window with dynamic data
     function showInfoWindow(title, author, month, year, desc) {
-      document.getElementById('info-window').style.display = 'block';;
+      document.getElementById('info-window').style.display = 'block';
       document.getElementById('info-text').innerHTML = `Title<div class="infoTextDetails">${title}</div>
         Author/s<div class="infoTextDetails">${author}</div>
         Date<div class="infoTextDetails">${year}-${month}</div>
-        Description<div class="infoTextDetails">${desc}</div>`
+        Description<div class="infoTextDetails" style="white-space: pre");>` + desc + "</div>";
     }
 
     // Show comments window with dynamic data

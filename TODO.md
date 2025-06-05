@@ -48,3 +48,10 @@ Aesthetic TODO
     - Scroll bar update
     - Audio control visuals
     - Astrisks
+
+
+post editing
+personal space
+Audio
+gallery desc not showing for some
+project feed search bar

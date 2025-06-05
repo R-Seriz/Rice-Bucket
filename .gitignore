@@ -9,3 +9,4 @@ static/assets/family/.DS_Store
 uploads/
 env/
 venv/
+.env

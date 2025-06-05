@@ -62,7 +62,7 @@ class FileEntry(db.Model):
                            server_default=func.now())
     description = db.Column(db.String(2200), nullable=False)
     approved = db.Column(db.Boolean, default=False, nullable=False)
-    filetype = db.Column(db.Integer, nullable=False) # 0:JPG, 1:PNG, 2:MP3, 3:YT
+    filetype = db.Column(db.Integer, nullable=False) # 0:JPG, 1:PNG, 2:MP3, 3:MP4, 4:YT
     filename = db.Column(db.Text, nullable=False)
 
     def __repr__(self):
@@ -191,7 +191,7 @@ def delete(id):
     file = FileEntry.query.filter(FileEntry.id == id).one()
     db.session.delete(file)
     db.session.commit()
-    if file.filetype in [0, 1, 2]:
+    if file.filetype in [0, 1, 2, 3]:
         os.remove(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
     return render_template('directory.html', files=FileEntry.query.all())
 
