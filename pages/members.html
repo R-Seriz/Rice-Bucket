@@ -28,6 +28,8 @@
 </body>
 
 <style>
+
+    /* profile folders */
     .folder-row {
         display: flex;
         flex-wrap: wrap;
@@ -62,21 +64,22 @@
         text-align: center;
     }
 
+    /* folder window */
+
     .folder-window {
         position: absolute;
         cursor: default;
         background-color: white;
         width: 750px;
-        height: 500px;
+        height: 460px;
         z-index: 15;
         box-shadow: -2px -2px #e0dede, -2px 0 #e0dede, 0 -2px #e0dede, -4px -4px white, -4px 0 white, 0 -4px white, 2px 2px #818181, 0 2px #818181, 2px 0 #818181, 2px -2px #e0dede, -2px 2px #818181, -4px 2px white, -4px 4px black, 4px 4px black, 4px 0 black, 0 4px black, 2px -4px white, 4px -4px black;
     }
 
     .folder-header {
         height: 20px;
-        width: 730px;
+        width: 740px;
         background: linear-gradient(90deg, #000b7c, #377cc6);
-        border-bottom: 2px solid rgb(192, 192, 192);
         float: left;
         display: flex;
         align-items: center;
@@ -84,12 +87,63 @@
         font-size: 16px;
         color: white;
         font-family: 'Chicago';
-        padding: 5px 10px;
-
+        padding-top: 5px;
+        padding-bottom: 5px;
+        padding-left: 10px;
     }
 
     .folder-content {
+        display: flex;
         padding: 10px;
+    }
+
+    .folder-content p {
+        font-family: JetBrains Mono, monospace;
+        font-size: 12px;
+        color: black;
+    }
+
+    .pfp {
+        max-width: 100px;
+        height: auto;
+        border: 1.5px solid #818181;
+        border-radius: 50%;
+        vertical-align: center;
+        margin-top: 15px;
+        margin-right: 30px;
+        margin-left: 15px;
+    }
+
+    .profile-gallery {
+        overflow-y: auto;
+        margin: 10px;
+        height: 231.5px;
+        padding: 5px;
+        width: auto;
+        border: 2px solid #818181;
+        background: rgb(192, 192, 192);
+        float: left;
+        object-fit: contain;
+        gap: 2px;
+    }
+
+    .profile-gallery img {
+        width: 232.5px;
+        height: 232.5px;
+    }
+
+    /* Scroll Bar */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgb(165, 165, 165);
+        width: 15px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #818181;
     }
 </style>
 
@@ -157,8 +211,25 @@
                 </div>
             </div>
         </div>
+        <div class="fileHeader">
+            <div class="WhiteBar"></div>
+            <div class="fileEdit">File</div>   
+            <div class="fileEdit">Edit</div>
+            <div class="fileEdit">View</div>
+            <div class="fileEdit">Options</div>
+            <div class="fileEdit">Help</div>                
+        </div>
         <div class="folder-content">
-          <p>Profile window for <strong>${username}</strong></p>
+            <img src="/static/assets/pfps/PFP.jpg" class="pfp">
+            <p><strong>${username}</strong><br>
+                [Insert bio description here]
+            </p>
+        </div>
+        <div class="profile-gallery">
+            <img src="/static/assets/pfps/PFP.jpg">
+            <img src="/static/assets/pfps/PFP.jpg">    
+            <img src="/static/assets/pfps/PFP.jpg">    
+            <img src="/static/assets/pfps/PFP.jpg">        
         </div>
       `;
 
@@ -167,6 +238,7 @@
         document.body.appendChild(folder);
     }
 
+    /* drag function */
     function startDrag(e, el) {
         e.preventDefault();
 
