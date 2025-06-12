@@ -25,7 +25,7 @@
     <div class="container">
         <div class="sectionheader">Upload</div>
         <p id="upload-instructions">
-            Submission must include a Title, Author/s, Year (YYYY), and Month (MM) <br>
+            Submission must include a Title, Year (YYYY), and Month (MM) <br>
             Accepted file types: <b>.JPG, .PNG, .MP3, .MP4, YouTube Link</b><br>
             Accepted years: 2022 to present</p>
         <form id="uploader" method=post method=post enctype=multipart/form-data>
@@ -43,7 +43,6 @@
                 <input id="title" type=text name=title placeholder="Title">
             </div>
             <div class="upload-forms">
-                <input id="author" type=text name=author placeholder="Author/s">
                 <input id="year" type=text name=year placeholder="YYYY" maxlength="4">
                 <input id="month" type=text name=month placeholder="MM" maxlength="2">
             </div>
@@ -96,10 +95,6 @@
     #month {
         text-align: center;
         width: 30px;
-    }
-
-    #author {
-        width: 401px;
     }
 
     #description {
@@ -227,7 +222,6 @@
     const form = document.getElementById('uploader');
     const fileInput = document.querySelector('input[name="file"]');
     const titleInput = document.getElementById('title');
-    const authorInput = document.getElementById('author');
     const yearInput = document.getElementById('year');
     const monthInput = document.getElementById('month');
 
@@ -252,11 +246,6 @@
         if (!titleInput.value.trim()) {
             isValid = false;
             alert('PLEASE ENTER A TITLE');
-        }
-
-        if (!authorInput.value.trim()) {
-            isValid = false;
-            alert('PLEASE ENTER THE AUTHOR/S');
         }
 
         if (!/^\d{4}$/.test(yearInput.value)) {
