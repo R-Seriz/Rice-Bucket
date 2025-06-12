@@ -7,18 +7,6 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}" />
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon_io/favicon.ico') }}" />
     <style>
-        #search {
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            margin-top: 20px;
-            margin-bottom: 20px;
-            width: 500px;
-            padding: 5px;
-            font-family: 'Chicago';
-            border-radius: 0;
-            border: 1.5px solid #818181;
-        }
 
         #pillar {
             padding: 10px 20px;
@@ -48,7 +36,6 @@
         .modal {
             display: none;
             margin-top: 32px;
-            align-items: center;
             justify-content: center;
             object-fit: contain;
             position: fixed;
@@ -65,19 +52,11 @@
         }
 
         #previewContainer {
-            padding-top: 5%;
-            width: 80%;
-            height: 100%;
+            margin-top: 32px;
+            width: 850px;
+            height: auto;
             overflow-y: scroll;
-            -ms-overflow-style: none;
-            /* IE and Edge */
-            scrollbar-width: none;
-            /* Firefox */
-            /* mask-image: linear-gradient(
-                    to bottom,
-                    black calc(100% - 48px),
-                    transparent 100%
-                ); */
+            position: fixed;
         }
 
         #post-title {
@@ -151,7 +130,6 @@
 
     <div class="container">
         <div id="feed-title">Project Feed</div>
-        <!-- <input id="search" type=text name=search placeholder="Search"> -->
         <div class="image-wrapper" id="imageGallery"></div>
     </div>
 
