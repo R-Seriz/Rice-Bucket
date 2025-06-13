@@ -84,7 +84,7 @@
         cursor: default;
         background-color: white;
         width: 750px;
-        height: 460px;
+        height: 500px;
         z-index: 15;
         box-shadow: -2px -2px #e0dede, -2px 0 #e0dede, 0 -2px #e0dede, -4px -4px white, -4px 0 white, 0 -4px white, 2px 2px #818181, 0 2px #818181, 2px 0 #818181, 2px -2px #e0dede, -2px 2px #818181, -4px 2px white, -4px 4px black, 4px 4px black, 4px 0 black, 0 4px black, 2px -4px white, 4px -4px black;
     }
@@ -134,23 +134,56 @@
 
     .profile-gallery {
         overflow-y: auto;
-        margin: 10px;
-        height: 250px;
+        margin-top: 15px;
+        margin-left: 10px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        height: 300px;
         width: 725px;
         border: 2px solid #818181;
         background: rgb(192, 192, 192);
         float: left;
+        vertical-align: top;
+        ;
         object-fit: contain;
+        display: flex;
     }
 
     .profile-gallery p {
         font-family: JetBrains Mono, monospace;
         font-size: 12px;
         color: black;
-        margin: 0;
-        padding: 2px;
-        column-count: 3;
-        column-gap: 2px;
+        padding: 5px;
+        column-count: 2;
+    }
+
+    /* User editing for folder window */
+    .plus-button {
+        position: absolute;
+        top: 50px;
+        margin-top: 90px;
+        margin-left: 90px;
+        width: 25px;
+        height: 25px;
+        font-size: 25px;
+        font-weight: bold;
+        text-align: center;
+        line-height: 23px;
+        color: #818181;
+        background-color: rgb(192, 192, 192);
+        border: 2.5px solid white;
+        border-radius: 50%;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    #bioTextarea {
+        font-family: JetBrains Mono, monospace;
+        font-size: 12px;
+        color: black;
+        border: none;
+        width: 100%;
+        resize: none;
     }
 
     /* Scroll Bar */
@@ -159,6 +192,7 @@
     }
 
     ::-webkit-scrollbar-track {
+        display: none;
         background: rgb(165, 165, 165);
         width: 15px;
     }
@@ -294,19 +328,22 @@
 
     /* folder-window  creation */
     let zIndexCounter = 100;
+    const currentUser = "{{ current_user.username }}";
+    const currentUserProfilePic = "{{ currentUserProfilePic }}";
+    const userBio = `{{ userBio | escape | replace('\n', '\\n') }}`;
 
     function openFolder(username) {
+
         fetch(`/user-files/${username}`)
             .then(response => response.json())
             .then(files => {
                 const folder = document.createElement('div');
+                const isOwnProfile = username === currentUser;
                 folder.className = 'folder-window';
                 folder.style.top = `20vh`;
                 folder.style.left = `25vw`;
                 folder.style.zIndex = ++zIndexCounter;
-
-                console.log(files);
-
+                
                 folder.innerHTML = `
                 <div class="folder-header">
                     <span>${username}</span>
@@ -327,32 +364,89 @@
                     <div class="fileEdit">Help</div>                
                 </div>
                 <div class="folder-content">
-                    <img src="/static/assets/pfps/default-pfp.png" class="pfp">
+                    <div class="pfp-container">
+                        <img src="/static/assets/pfps/${isOwnProfile ? currentUserProfilePic : 'default-pfp.png'}" class="pfp" id="pfp-${username}">
+                        ${isOwnProfile ? `
+                        <div id="profileForm">
+                            <label for="profilePicInput" class="plus-button">+</label>
+                            <input type="file" id="profilePicInput" name="profile_pic" accept="image/*" hidden>
+                        </div>
+                        ` : ''}
+                    </div>
                     <div class="folder-content-text">
-                        <p><strong>${username}</strong><br></p>
-                        <p>[Insert bio description here]</p>
+                        <p><strong>${username}</strong></p>
+                        ${isOwnProfile ? `
+                            <textarea name="bio" id="bioTextarea" rows="4" cols="75">${userBio}</textarea><br>
+                        ` : `
+                            <p>${userBio}</p>
+                        `}
                     </div>
                 </div>
                 <div class="profile-gallery"></div>
             `;
 
+                const bioTextarea = folder.querySelector('#bioTextarea');
+                if (bioTextarea) {
+                    let bioSaveTimeout;
+
+                    bioTextarea.addEventListener('input', () => {
+                        clearTimeout(bioSaveTimeout);
+                        bioSaveTimeout = setTimeout(() => {
+                            const newBio = bioTextarea.value;
+
+                            fetch('/update-bio', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ bio: newBio })
+                            })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.status !== 'success') {
+                                        console.error('Failed to save bio:', data.message);
+                                    } else {
+                                        console.log('Bio saved.');
+                                    }
+                                })
+                                .catch(err => console.error('Error saving bio:', err));
+                        }, 600);
+                    });
+                }
+
+                if (isOwnProfile) {
+                    const form = folder.querySelector('#profileForm');
+                    form.querySelector('input[name="profile_pic"]').addEventListener('change', async () => {
+                        const formData = new FormData(form);
+                        const response = await fetch('/update-profile', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const result = await response.json();
+                        if (result.success) {
+                            alert("Refresh site to see new changes.");
+                            document.getElementById(`pfp-${username}`).src = `/static/assets/pfps/${result.new_filename}`;
+                        }
+                    });
+                }
+
                 const gallery = folder.querySelector('.profile-gallery');
 
                 files.forEach((post, index) => {
                     const wrapper = document.createElement('div');
-                    wrapper.style.display = 'inline-block';
+                    wrapper.style.display = 'inline-flex';
 
                     let media;
                     if (post.filetype === 'JPG' || post.filetype === 'PNG') {
                         media = document.createElement('img');
                         media.src = `/download/${post.filename}`;
-                        media.style.width = '362.5px';
-                        media.style.height = 'auto';
+                        media.style.height = '284px';
+                        media.style.width = 'auto';
                     } else if (post.filetype === 'YT') {
                         media = document.createElement('img');
                         media.src = `http://img.youtube.com/vi/${post.filename}/mqdefault.jpg`;
-                        media.style.width = '362.5px';
-                        media.style.height = 'auto';
+                        media.style.height = '284px';
+                        media.style.width = 'auto';
                     } else {
                         return;
                     }
