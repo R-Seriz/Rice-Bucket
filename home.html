@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rice Bucket</title>
+  <script type="importmap">
+            {
+              "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.167.1/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.167.1/examples/jsm/",
+				"@tweenjs/tween.js": "/static/js/node_modules/@tweenjs/tween.js/dist/tween.esm.js"
+              }
+            }
+          </script>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon_io/favicon.ico') }}">
+</head>
+
+<body class="no-scroll">
+  <div id="loader">
+      <img src="/static/assets/icons/loading.png" alt="Loading..." />
+  </div>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <a class="active" href="{{ url_for('home') }}" style="text-decoration:none">Home</a>
+    <a href="{{ url_for('about') }}" style="text-decoration:none">About</a>
+    {% if auth %}
+    <a href="{{ url_for('member_feed') }}" style="text-decoration:none">Feed</a>
+    <a href="{{ url_for('members') }}" style="text-decoration: none">Members</a>
+    <a href="{{ url_for('upload') }}" style="text-decoration:none">Upload</a>
+    <a href="{{ url_for('directory') }}" style="text-decoration:none">Directory</a>
+    <div class="nav-right">
+      <a href="{{ url_for('logout') }}" style="text-decoration:none">Logout</a>
+    </div>
+    {% else %}
+    <div class="nav-right">
+      <a href="{{ url_for('login') }}" style="text-decoration:none">Login</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Container for rendering content -->
+  <div class="container" id="CSSRender"></div>
+
+  <!-- Info Window -->
+  <div id="info-window">
+    <div id="window-bar">
+      Information
+      <div class="button-group">
+        <div class="button">
+          <div class="minimize"></div>
+        </div>
+        <div class="button">
+          <div class="full-screen-1"></div>
+          <div class="full-screen-2"></div>
+        </div>
+        <div class="button" onclick="closeWindow('info-window')">
+          <div class="close"></div>
+        </div>
+      </div>
+    </div>
+    <div id="info-text">
+      Title<br>
+      Author/s<br>
+      Date<br>
+      Description<br>
+    </div>
+  </div>
+
+  <!-- Comments Window -->
+  <div id="comments-window">
+    <div id="window-bar">
+      Comments
+      <div class="button-group">
+        <div class="button">
+          <div class="minimize"></div>
+        </div>
+        <div class="button">
+          <div class="full-screen-1"></div>
+          <div class="full-screen-2"></div>
+        </div>
+        <div class="button" onclick="closeWindow('comments-window')">
+          <div class="close"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="existing-comments"></div>
+
+    <!-- Comment Form -->
+    <form method=post enctype=multipart/form-data class="comment-area" id="submittedComment">
+      <div>
+        <textarea id="user-comment" name="text" maxlength="500" oninput="updateCharCount()"></textarea>
+        <input id="commentAuthor" type=text name="author" style="display:none" value="BOB">
+        <input name="postid" id="postid" style="display:none">
+      </div>
+      <div class="actions">
+        <input id="add-comment" type=submit value="Share Comment">
+        <div id="char-counter">0/500</div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // loader 
+    window.addEventListener('load', () => {
+        const loader = document.getElementById('loader');
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 5000); // match total animation time: fadeIn (1s) + delay (1s) + fadeOut (1s)
+    });
+
+    let windows = {};
+
+    // Initialize window properties
+    function initializeWindow(id) {
+      const windowElement = document.getElementById(id);
+      const rect = windowElement.getBoundingClientRect();
+
+      windows[id] = {
+        isDragging: false,
+        offsetX: 0,
+        offsetY: 0,
+        isFullscreen: false, // Track fullscreen state
+        originalPosition: { top: rect.top, left: rect.left }, // Store original position for restore
+        originalSize: { width: rect.width, height: rect.height }, // Store original size for restore
+      };
+
+      windowElement.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return; // only allow left-click for dragging
+
+        windows[id].isDragging = true;
+
+        const rect = windowElement.getBoundingClientRect();
+        windows[id].offsetX = e.clientX - rect.left;
+        windows[id].offsetY = e.clientY - rect.top;
+
+        windowElement.style.transition = "none";
+        windowElement.style.position = "absolute";
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', stopDragging);
+      })
+
+      function onMouseMove(e) {
+        if (!windows[id].isDragging) return;
+
+        const newX = e.clientX - windows[id].offsetX + window.scrollX;;
+        const newY = e.clientY - windows[id].offsetY + window.scrollY;;
+
+        windowElement.style.left = `${newX}px`;
+        windowElement.style.top = `${newY}px`;
+      }
+
+      function stopDragging() {
+        windows[id].isDragging = false;
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', stopDragging);
+      }
+    }
+
+    // Close window
+    function closeWindow(id) {
+      console.log('Close clicked for:', id);
+      document.getElementById(id).style.display = 'none';
+      if (id === 'comments-window') {
+        clearInterval(commentPollInterval);
+      }
+    }
+
+    // Update character count in comment box
+    function updateCharCount() {
+      const textarea = document.getElementById("user-comment");
+      const counter = document.getElementById("char-counter");
+      const maxLength = textarea.getAttribute("maxlength");
+      const currentLength = textarea.value.length;
+
+      counter.textContent = `${currentLength}/${maxLength}`;
+    }
+
+    // Submit comment via AJAX
+    const form = document.getElementById('submittedComment');
+    form.onsubmit = (e) => {
+      e.preventDefault();
+
+      const commentText = document.getElementById("user-comment").value.trim();
+      if (commentText === "") {
+        alert("Comment Cannot Be Empty");
+        return;
+      }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/comment");
+      xhr.onload = function (event) {
+        console.log(event.target.response);
+
+        const commentBox = document.getElementById("user-comment");
+        commentBox.value = "";
+
+        const charCounter = document.getElementById("char-counter");
+        charCounter.textContent = "0/500";
+      };
+
+      var formData = new FormData(form);
+      xhr.send(formData);
+    }
+
+    // Show information window with dynamic data
+    function showInfoWindow(title, author, month, year, desc) {
+      document.getElementById('info-window').style.display = 'block';;
+      document.getElementById('info-text').innerHTML = `Title<div class="infoTextDetails">${title}</div>
+        Author/s<div class="infoTextDetails">${author}</div>
+        Date<div class="infoTextDetails">${year}-${month}</div>
+        Description<div class="infoTextDetails">${desc}</div>`
+    }
+
+    // Show comments window with dynamic data
+    let commentPollInterval;
+
+    function showCommentWindow(id) {
+      document.getElementById('postid').value = id;
+      const ca = document.getElementById("existing-comments");
+
+      function fetchComments() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("get", `/comment/${id}`);
+        xhr.onload = function (event) {
+          const ca = document.getElementById("existing-comments");
+          const comments = JSON.parse(event.target.response);
+          ca.innerHTML = '';
+          for (let idx in comments) {
+            var elem = document.createElement('div');
+            elem.classList.add('added-comment-area');
+            elem.innerHTML = `
+        <div class="user-name">${comments[idx]['author']}</div>
+        <div class="added-comment">${comments[idx]['text']}</div>`;
+            ca.appendChild(elem);
+          }
+        };
+        xhr.send();
+      }
+
+      fetchComments();
+
+      if (commentPollInterval) clearInterval(commentPollInterval);
+      commentPollInterval = setInterval(fetchComments, 2000);
+
+      document.getElementById('comments-window').style.display = 'block';
+    }
+
+    // Initialize windows
+    initializeWindow('info-window');
+    initializeWindow('comments-window');
+  </script>
+
+  <script type="module" src="/static/js/3dnavigator.js"></script>
+</body>
+
+<style>
+  /* loader */
+    #loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgb(0, 0, 0);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        animation: fadeOut 3s ease 2s forwards;
+    }
+
+    #loader img {
+        width: 50%;
+        height: auto;
+        opacity: 0;
+        animation: fadeIn 2s ease-in forwards;
+    }
+
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        0% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 0;
+            visibility: hidden;
+        }
+    }
+
+
+  /* Window styles */
+  #info-window,
+  #comments-window {
+    display: none;
+    position: absolute;
+    transform: none;
+    cursor: default;
+    background-color: white;
+    box-shadow: -2px -2px #e0dede, -2px 0 #e0dede, 0 -2px #e0dede, -4px -4px white, -4px 0 white, 0 -4px white, 2px 2px #818181, 0 2px #818181, 2px 0 #818181, 2px -2px #e0dede, -2px 2px #818181, -4px 2px white, -4px 4px black, 4px 4px black, 4px 0 black, 0 4px black, 2px -4px white, 4px -4px black;
+    width: 300px;
+    z-index: 15;
+  }
+
+  #info-window {
+    top: 20%;
+    left: 2%;
+  }
+
+  #comments-window {
+    top: 35%;
+    right: 2%;
+  }
+
+  #window-bar {
+    position: relative;
+    height: 30px;
+    width: calc(100% - 10px);
+    background: linear-gradient(90deg, #000b7c, #377cc6);
+    border-bottom: 2px solid rgb(192, 192, 192);
+    float: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 16px;
+    color: white;
+    font-family: 'Chicago';
+    padding-left: 10px;
+  }
+
+  /* Info styles */
+  #info-text {
+    font-family: 'Chicago';
+    font-size: 16px;
+    padding: 5px;
+    overflow: auto;
+    max-height: 450px;
+  }
+
+  .infoTextDetails {
+    font-family: JetBrains Mono, monospace;
+    font-size: 14px;
+    word-break: break-word;
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+
+  /* Comments styles */
+  #existing-comments {
+    position: relative;
+    margin-top: 30px;
+    max-height: 300px;
+    width: 100%;
+    overflow-y: hidden;
+  }
+
+  #existing-comments:hover {
+    overflow-y: auto;
+  }
+
+  .added-comment-area {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    gap: 10px;
+  }
+
+  /* Comment form styles */
+  .user-name {
+    background-color: none;
+    font-family: JetBrains Mono, monospace;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .added-comment {
+    background-color: none;
+    font-family: JetBrains Mono, monospace;
+    font-size: 12px;
+  }
+
+  #user-comment {
+    width: calc(100% - 12px);
+    overflow-y: auto;
+    height: 50px;
+    background-color: white;
+    outline: none;
+    padding: 5px;
+    text-align: left;
+    vertical-align: top;
+    resize: none;
+  }
+
+  .comment-area {
+    position: relative;
+    bottom: 0;
+    height: 90px;
+    width: calc(100% - 20px);
+    background-color: rgb(192, 192, 192);
+    border-top: 2px solid #818181;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-family: JetBrains Mono, monospace;
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .actions {
+    padding: 4px;
+    margin-top: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  #add-comment {
+    height: 20px;
+    width: 110px;
+    background-color: #e0dede;
+    border: none;
+    box-shadow: -2px -2px #e0dede, -2px 0 #e0dede, 0 -2px #e0dede, -4px -4px white, -4px 0 white, 0 -4px white, 2px 2px #818181, 0 2px #818181, 2px 0 #818181, 2px -2px #e0dede, -2px 2px #818181, -4px 2px white, -4px 4px black, 4px 4px black, 4px 0 black, 0 4px black, 2px -4px white, 4px -4px black;
+    font-family: JetBrains Mono, monospace;
+    font-size: 12px;
+    left: 0;
+  }
+
+  #add-comment:active {
+    box-shadow: -2px -2px #818181, -2px 0 #818181, 0 -2px #818181, -4px -4px black, -4px 0 black, 0 -4px black, 2px 2px #e0dede, 0 2px #e0dede, 2px 0 #e0dede, 2px -2px #818181, -2px 2px #e0dede, -4px 2px black, -4px 4px white, 4px 4px white, 4px 0 white, 0 4px white, 2px -4px black, 4px -4px white;
+  }
+
+  #char-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #818181;
+    margin-left: auto;
+    text-align: right;
+  }
+</style>
+
+</html>
