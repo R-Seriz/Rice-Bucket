@@ -50,6 +50,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(250), nullable=False)
     email = db.Column(db.String(250), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=True)
+    bio = db.Column(db.Text, default="")
+    profile_pic = db.Column(db.String(120), default="default-pfp.png")
 
     files = db.relationship('FileEntry', back_populates='user')
 
@@ -116,7 +118,13 @@ def directory():
 @app.route('/members')
 @login_required
 def members():
-    return render_template('members.html')
+    profile_pic = current_user.profile_pic or "default-pfp.png"
+    bio = current_user.bio or "This user hasn't written a bio yet."
+    
+    return render_template('members.html',
+                           current_user=current_user,
+                           currentUserProfilePic=profile_pic,
+                           userBio=bio)
 
 @app.route('/user-files/<username>')
 def get_user_files(username):
@@ -134,8 +142,47 @@ def get_user_files(username):
             'filename': f.filename,
             'project_year': f.project_year,
             'project_month': f.project_month,
+            'author': username
         } for f in files
     ])
+
+
+@app.route('/update-profile', methods=['POST'])
+@login_required
+def update_profile():
+    # Handle JSON bio update
+    if request.is_json:
+        data = request.get_json()
+        bio = data.get('bio')
+        if bio is not None:
+            current_user.bio = bio
+            db.session.commit()
+            return jsonify({'status': 'success'})
+
+        return jsonify({'status': 'error', 'message': 'No bio provided'}), 400
+
+    # Handle multipart/form-data profile_pic upload
+    if 'profile_pic' in request.files:
+        file = request.files['profile_pic']
+        filename = secure_filename(file.filename)
+        path = os.path.join('static', 'assets', 'pfps', filename)
+        file.save(path)
+        current_user.profile_pic = filename
+        db.session.commit()
+        return jsonify({'success': True, 'new_filename': filename})
+
+    return jsonify({'status': 'error', 'message': 'Invalid request'}), 400
+
+@app.route('/update-bio', methods=['POST'])
+@login_required
+def update_bio():
+    data = request.get_json()
+    bio = data.get('bio', '')
+    
+    current_user.bio = bio
+    db.session.commit()
+
+    return jsonify({'status': 'success'})
 
 @app.route("/login", methods = ['GET', 'POST'])
 def login():
@@ -220,7 +267,7 @@ def delete(id):
     file = FileEntry.query.filter(FileEntry.id == id).one()
     db.session.delete(file)
     db.session.commit()
-    if file.filetype in [0, 1, 2, 3]:
+    if file.filetype in [0, 1, 2, 3, 4]:
         os.remove(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
     return render_template('directory.html', files=FileEntry.query.all())
 
@@ -253,6 +300,7 @@ def listComment(id):
 def dbjson():
     return jsonify(sorted([{'id': x.id, 'approved': x.approved, 'creation_date': x.created_at, 'project_year': x.project_year,
                      'project_month': x.project_month, 'title': x.title,
+                     'author': x.user.username if x.user else "Unknown",
                      'description': x.description, 'filetype': x.filetype, 'filename': x.filename} for x in FileEntry.query.all()], reverse=True, key=itemgetter('project_year', 'project_month')))
 
 
