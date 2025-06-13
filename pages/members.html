@@ -331,8 +331,13 @@
     const currentUser = "{{ current_user.username }}";
     const currentUserProfilePic = "{{ currentUserProfilePic }}";
     const userBio = `{{ userBio | escape | replace('\n', '\\n') }}`;
+    const openFolders = new Set();
 
     function openFolder(username) {
+        if (openFolders.has(username)) {
+            return;
+        }
+        openFolders.add(username); 
 
         fetch(`/user-files/${username}`)
             .then(response => response.json())
@@ -350,7 +355,7 @@
                     <div class="button-group">
                         <div class="button"><div class="minimize"></div></div>
                         <div class="button"><div class="full-screen-1"></div><div class="full-screen-2"></div></div>
-                        <div class="button" onclick="this.parentElement.parentElement.parentElement.remove()">
+                        <div class="button" onclick="closeFolder(this, '${username}')">
                             <div class="close"></div>
                         </div>
                     </div>
@@ -506,10 +511,20 @@
             });
     }
 
+    /* close post function */
     function closePost() {
         const modal = document.getElementById("postPreviewModal");
         modal.style.display = "none";
         document.body.classList.remove("modal-open");
+    }
+
+    /* close folder function */
+    function closeFolder(element, username) {
+        const folder = element.closest('.folder-window');
+        if (folder) {
+            folder.remove();
+            openFolders.delete(username);
+        }
     }
 
     /* drag function */
