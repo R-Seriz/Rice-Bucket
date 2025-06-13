@@ -26,6 +26,20 @@
         <div id="row2" class="folder-row"></div>
         <div id="row3" class="folder-row"></div>
     </div>
+
+    <div id="postPreviewModal" class="modal" onclick="closePost()">
+        <div id="previewContainer">
+            <div id="separator">
+                <div id="post-title">Hello world</div>
+                <div id="post-date">Jan, 2025</div>
+            </div>
+            <div id="post-author"></div>
+            <div id="post-description">
+                This is a test, you shouldn't be seeing this...
+            </div>
+            <div id="post-content"></div>
+        </div>
+    </div>
 </body>
 
 <style>
@@ -121,7 +135,7 @@
     .profile-gallery {
         overflow-y: auto;
         margin: 10px;
-        height: 255px;
+        height: 250px;
         width: 725px;
         border: 2px solid #818181;
         background: rgb(192, 192, 192);
@@ -151,6 +165,92 @@
 
     ::-webkit-scrollbar-thumb {
         background: #818181;
+    }
+
+    /* copied from feed.html */
+    .modal {
+        display: none;
+        margin-top: 32px;
+        justify-content: center;
+        object-fit: contain;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.85);
+    }
+
+    #previewContainer::-webkit-scrollbar {
+        display: none;
+    }
+
+    #previewContainer {
+        display: block;
+        padding: 25px;
+        width: calc(100vh * (4 / 3));
+        height: 100%;
+        overflow-y: scroll;
+        position: fixed;
+    }
+
+    #post-title {
+        color: #dadada;
+        font-family: "Chicago", monospace;
+        font-size: 25px;
+        padding-left: 20px;
+    }
+
+    #separator {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    #post-author,
+    #post-date,
+    #post-description {
+        color: #dadada;
+        font-family: monospace;
+    }
+
+    #post-date {
+        padding-top: 10px;
+        padding-right: 20px;
+    }
+
+    #post-author {
+        margin-bottom: 20px;
+        padding-left: 20px;
+    }
+
+    #post-description {
+        margin-bottom: 20px;
+        padding-left: 20px;
+    }
+
+    #post-content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    #post-content iframe {
+        border: none;
+        outline: none;
+        margin-top: 50px;
+    }
+
+    .modal-content {
+        display: block;
+        object-fit: contain;
+        max-height: 600px;
+        margin-bottom: 20px;
+    }
+
+    body.modal-open {
+        overflow: hidden;
     }
 </style>
 
@@ -193,7 +293,7 @@
     });
 
     /* folder-window  creation */
-    let zIndexCounter = 1000;
+    let zIndexCounter = 100;
 
     function openFolder(username) {
         fetch(`/user-files/${username}`)
@@ -204,6 +304,8 @@
                 folder.style.top = `20vh`;
                 folder.style.left = `25vw`;
                 folder.style.zIndex = ++zIndexCounter;
+
+                console.log(files);
 
                 folder.innerHTML = `
                 <div class="folder-header">
@@ -234,9 +336,86 @@
                 <div class="profile-gallery"></div>
             `;
 
+                const gallery = folder.querySelector('.profile-gallery');
+
+                files.forEach((post, index) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.style.display = 'inline-block';
+
+                    let media;
+                    if (post.filetype === 'JPG' || post.filetype === 'PNG') {
+                        media = document.createElement('img');
+                        media.src = `/download/${post.filename}`;
+                        media.style.width = '362.5px';
+                        media.style.height = 'auto';
+                    } else if (post.filetype === 'YT') {
+                        media = document.createElement('img');
+                        media.src = `http://img.youtube.com/vi/${post.filename}/mqdefault.jpg`;
+                        media.style.width = '362.5px';
+                        media.style.height = 'auto';
+                    } else {
+                        return;
+                    }
+
+                    media.style.cursor = 'pointer';
+
+                    media.onclick = () => {
+                        enlargePost(index);
+                    };
+
+                    wrapper.appendChild(media);
+                    gallery.appendChild(wrapper);
+                });
+
+                function enlargePost(index) {
+                    const modal = document.getElementById("postPreviewModal");
+                    const contentDiv = document.getElementById("post-content");
+                    contentDiv.innerText = "";
+                    let post = files[index];
+                    let filetype = parseInt(post.filetype);
+                    var postContent = null;
+
+                    if (post.filetype === 'JPG' || post.filetype === 'PNG') {
+                        postContent = document.createElement("img");
+                        postContent.src = "download/" + post.filename;
+                    } else if (post.filetype === 'YT') {
+                        postContent = document.createElement("iframe");
+                        postContent.src = "https://www.youtube.com/embed/" + post.filename;
+                        postContent.height = 450;
+                        postContent.width = 800;
+                    } else {
+                        console.warn("Unsupported filetype in preview:", filetype);
+                        return;
+                    }
+
+                    let months = [
+                        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                    ];
+
+                    document.getElementById("post-title").innerText = post.title;
+                    document.getElementById("post-author").innerText = "by " + post.author;
+                    document.getElementById("post-date").innerText = months[post.project_month - 1] + ", " + post.project_year;
+                    document.getElementById("post-description").innerText = post.description;
+
+                    postContent.classList.add("modal-content");
+                    contentDiv.appendChild(postContent);
+                    modal.style.display = "flex";
+                    document.body.classList.add("modal-open");
+                }
+
                 folder.addEventListener('mousedown', (e) => startDrag(e, folder));
                 document.body.appendChild(folder);
+            })
+            .catch(error => {
+                console.error('Error loading user files:', error);
             });
+    }
+
+    function closePost() {
+        const modal = document.getElementById("postPreviewModal");
+        modal.style.display = "none";
+        document.body.classList.remove("modal-open");
     }
 
     /* drag function */
