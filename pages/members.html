@@ -25,10 +25,10 @@
         <div id="row1" class="folder-row"></div>
         <div id="row2" class="folder-row"></div>
         <div id="row3" class="folder-row"></div>
+    </div>
 </body>
 
 <style>
-
     /* profile folders */
     .folder-row {
         display: flex;
@@ -65,7 +65,6 @@
     }
 
     /* folder window */
-
     .folder-window {
         position: absolute;
         cursor: default;
@@ -94,13 +93,18 @@
 
     .folder-content {
         display: flex;
-        padding: 10px;
     }
 
-    .folder-content p {
+    .folder-content-text {
+        margin-top: 30px;
+    }
+
+    .folder-content-text p {
         font-family: JetBrains Mono, monospace;
         font-size: 12px;
         color: black;
+        margin: 0;
+        padding: 2px;
     }
 
     .pfp {
@@ -117,19 +121,22 @@
     .profile-gallery {
         overflow-y: auto;
         margin: 10px;
-        height: 231.5px;
-        padding: 5px;
-        width: auto;
+        height: 255px;
+        width: 725px;
         border: 2px solid #818181;
         background: rgb(192, 192, 192);
         float: left;
         object-fit: contain;
-        gap: 2px;
     }
 
-    .profile-gallery img {
-        width: 232.5px;
-        height: 232.5px;
+    .profile-gallery p {
+        font-family: JetBrains Mono, monospace;
+        font-size: 12px;
+        color: black;
+        margin: 0;
+        padding: 2px;
+        column-count: 3;
+        column-gap: 2px;
     }
 
     /* Scroll Bar */
@@ -189,53 +196,47 @@
     let zIndexCounter = 1000;
 
     function openFolder(username) {
-        const folder = document.createElement('div');
-        folder.className = 'folder-window';
-        folder.style.top = `20vh`;
-        folder.style.left = `25vw`;
-        folder.style.zIndex = ++zIndexCounter;
+        fetch(`/user-files/${username}`)
+            .then(response => response.json())
+            .then(files => {
+                const folder = document.createElement('div');
+                folder.className = 'folder-window';
+                folder.style.top = `20vh`;
+                folder.style.left = `25vw`;
+                folder.style.zIndex = ++zIndexCounter;
 
-        folder.innerHTML = `
-        <div class="folder-header">
-            <span>${username}</span>
-            <div class="button-group">
-                <div class="button">
-                    <div class="minimize"></div>
+                folder.innerHTML = `
+                <div class="folder-header">
+                    <span>${username}</span>
+                    <div class="button-group">
+                        <div class="button"><div class="minimize"></div></div>
+                        <div class="button"><div class="full-screen-1"></div><div class="full-screen-2"></div></div>
+                        <div class="button" onclick="this.parentElement.parentElement.parentElement.remove()">
+                            <div class="close"></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="button">
-                    <div class="full-screen-1"></div>
-                    <div class="full-screen-2"></div>
+                <div class="fileHeader">
+                    <div class="WhiteBar"></div>
+                    <div class="fileEdit">File</div>   
+                    <div class="fileEdit">Edit</div>
+                    <div class="fileEdit">View</div>
+                    <div class="fileEdit">Options</div>
+                    <div class="fileEdit">Help</div>                
                 </div>
-                <div class="button" onclick="this.parentElement.parentElement.parentElement.remove()">
-                    <div class="close"></div>
+                <div class="folder-content">
+                    <img src="/static/assets/pfps/default-pfp.png" class="pfp">
+                    <div class="folder-content-text">
+                        <p><strong>${username}</strong><br></p>
+                        <p>[Insert bio description here]</p>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="fileHeader">
-            <div class="WhiteBar"></div>
-            <div class="fileEdit">File</div>   
-            <div class="fileEdit">Edit</div>
-            <div class="fileEdit">View</div>
-            <div class="fileEdit">Options</div>
-            <div class="fileEdit">Help</div>                
-        </div>
-        <div class="folder-content">
-            <img src="/static/assets/pfps/PFP.jpg" class="pfp">
-            <p><strong>${username}</strong><br>
-                [Insert bio description here]
-            </p>
-        </div>
-        <div class="profile-gallery">
-            <img src="/static/assets/pfps/PFP.jpg">
-            <img src="/static/assets/pfps/PFP.jpg">    
-            <img src="/static/assets/pfps/PFP.jpg">    
-            <img src="/static/assets/pfps/PFP.jpg">        
-        </div>
-      `;
+                <div class="profile-gallery"></div>
+            `;
 
-        folder.addEventListener('mousedown', (e) => startDrag(e, folder));
-
-        document.body.appendChild(folder);
+                folder.addEventListener('mousedown', (e) => startDrag(e, folder));
+                document.body.appendChild(folder);
+            });
     }
 
     /* drag function */

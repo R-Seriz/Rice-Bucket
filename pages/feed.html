@@ -7,7 +7,6 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}" />
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon_io/favicon.ico') }}" />
     <style>
-
         #pillar {
             padding: 10px 20px;
         }
@@ -44,7 +43,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.80);
+            background-color: rgba(0, 0, 0, 0.85);
         }
 
         #previewContainer::-webkit-scrollbar {
@@ -52,9 +51,10 @@
         }
 
         #previewContainer {
-            margin-top: 32px;
-            width: 850px;
-            height: auto;
+            display: block;
+            padding: 25px;
+            width: calc(100vh * (4 / 3));
+            height: 100;
             overflow-y: scroll;
             position: fixed;
         }
@@ -63,6 +63,7 @@
             color: #dadada;
             font-family: "Chicago", monospace;
             font-size: 25px;
+            padding-left: 20px;
         }
 
         #separator {
@@ -79,25 +80,37 @@
 
         #post-date {
             padding-top: 10px;
+            padding-right: 20px;
         }
 
         #post-author {
             margin-bottom: 20px;
+            padding-left: 20px;
         }
 
         #post-description {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            padding-left: 20px;
         }
 
         #post-content {
-            max-height: 80%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #post-content iframe {
+            border: none;
+            outline: none;
+            margin-top: 50px;
         }
 
         .modal-content {
-            margin: auto;
             display: block;
-            max-width: 95%;
             object-fit: contain;
+            max-height: 600px;
+            margin-bottom: 20px;
         }
 
         body.modal-open {
@@ -105,7 +118,7 @@
         }
 
         #feed-title {
-            color: #112222;
+            color: #000000;
             font-family: "Chicago", monospace;
             font-size: 40px;
             text-align: center;
@@ -139,7 +152,7 @@
                 <div id="post-title">Hello world</div>
                 <div id="post-date">Jan, 2025</div>
             </div>
-            <div id="post-author">by Kian and Rui</div>
+            <div id="post-author"></div>
             <div id="post-description">
                 This is a test, you shouldn't be seeing this...
             </div>
@@ -190,7 +203,9 @@
             let postInner = document.createElement("div");
             postInner.classList.add("gallery");
             postOuter.appendChild(postInner);
+
             var postContent;
+            
             if (filetype == 0 || filetype == 1) {
                 postContent = document.createElement("img");
                 postContent.src = "download/" + filename;
@@ -223,44 +238,31 @@
             const contentDiv = document.getElementById("post-content");
             contentDiv.innerText = "";
             let post = db[index];
-            let filetype = post.filetype;
-            var postContent;
-            if (filetype == 0 || filetype == 1) {
+            let filetype = parseInt(post.filetype);
+            var postContent = null;
+
+            if (filetype === 0 || filetype === 1) {
                 postContent = document.createElement("img");
                 postContent.src = "download/" + post.filename;
-            }
-            if (filetype == 2) {
-                postContent = document.createElement("div"); // Skipping mp3s for now.
-            }
-            if (filetype == 3) {
+            } else if (filetype === 4) {
                 postContent = document.createElement("iframe");
-                postContent.src =
-                    "https://www.youtube.com/embed/" + post.filename;
+                postContent.src = "https://www.youtube.com/embed/" + post.filename;
                 postContent.height = 450;
                 postContent.width = 800;
+            } else {
+                console.warn("Unsupported filetype in preview:", filetype);
+                return;
             }
+
             let months = [
-                "Jan",
-                "Feb",
-                "Mar",
-                "Apr",
-                "May",
-                "Jun",
-                "Jul",
-                "Aug",
-                "Sep",
-                "Oct",
-                "Nov",
-                "Dec",
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
             ];
 
             document.getElementById("post-title").innerText = post.title;
-            document.getElementById("post-author").innerText =
-                "by " + post.author;
-            document.getElementById("post-date").innerText =
-                months[post.project_month - 1] + ", " + post.project_year;
-            document.getElementById("post-description").innerText =
-                post.description;
+            document.getElementById("post-author").innerText = "by " + post.author;
+            document.getElementById("post-date").innerText = months[post.project_month - 1] + ", " + post.project_year;
+            document.getElementById("post-description").innerText = post.description;
 
             postContent.classList.add("modal-content");
             contentDiv.appendChild(postContent);
