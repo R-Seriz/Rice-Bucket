@@ -50,11 +50,14 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(250), nullable=False)
     email = db.Column(db.String(250), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=True)
+    bio = db.Column(db.Text, default="")
+    profile_pic = db.Column(db.String(120), default="default-pfp.png")
 
+    files = db.relationship('FileEntry', back_populates='user')
 
 class FileEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    author = db.Column(db.String(100), nullable=False)
+    
     title = db.Column(db.String(100), nullable=False)
     project_year = db.Column(db.Integer, nullable=False)
     project_month = db.Column(db.Integer, nullable=False)
@@ -65,17 +68,25 @@ class FileEntry(db.Model):
     filetype = db.Column(db.Integer, nullable=False) # 0:JPG, 1:PNG, 2:MP3, 3:MP4, 4:YT
     filename = db.Column(db.Text, nullable=False)
 
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', back_populates='files')
+
     def __repr__(self):
         return f'<FileEntry {self.filename}>'
 
 
 class CommentEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    fileentry_id = db.Column(db.Integer, nullable=False)
-    author = db.Column(db.String(100), nullable=False)
+    
+    fileentry_id = db.Column(db.Integer, db.ForeignKey('file_entry.id'), nullable=False)
+    fileentry = db.relationship('FileEntry', backref='comments')
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref='comments')
+    
     text = db.Column(db.String(500), nullable=False)
-    created_at = db.Column(db.DateTime(timezone=True),
-                           server_default=func.now())
+    
+    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
     def __repr__(self):
         return f'<CommentEntry {self.id}>'
@@ -100,13 +111,78 @@ def about():
 @app.route('/directory')
 @login_required
 def directory():
-    return render_template('directory.html', files=FileEntry.query.all())
+    files = FileEntry.query.all()
+    print(files)
+    return render_template('directory.html', files=files)
 
 @app.route('/members')
 @login_required
 def members():
-    return render_template('members.html')
+    profile_pic = current_user.profile_pic or "default-pfp.png"
+    bio = current_user.bio or "This user hasn't written a bio yet."
+    
+    return render_template('members.html',
+                           current_user=current_user,
+                           currentUserProfilePic=profile_pic,
+                           userBio=bio)
 
+@app.route('/user-files/<username>')
+def get_user_files(username):
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    filetype_map = {0: "JPG", 1: "PNG", 2: "MP3", 3: "MP4", 4: "YT"}
+    files = FileEntry.query.filter_by(user_id=user.id, approved=True).all()
+    return jsonify([
+        {
+            'title': f.title,
+            'description': f.description,
+            'filetype': filetype_map.get(f.filetype, f.filetype),
+            'filename': f.filename,
+            'project_year': f.project_year,
+            'project_month': f.project_month,
+            'author': username
+        } for f in files
+    ])
+
+
+@app.route('/update-profile', methods=['POST'])
+@login_required
+def update_profile():
+    # Handle JSON bio update
+    if request.is_json:
+        data = request.get_json()
+        bio = data.get('bio')
+        if bio is not None:
+            current_user.bio = bio
+            db.session.commit()
+            return jsonify({'status': 'success'})
+
+        return jsonify({'status': 'error', 'message': 'No bio provided'}), 400
+
+    # Handle multipart/form-data profile_pic upload
+    if 'profile_pic' in request.files:
+        file = request.files['profile_pic']
+        filename = secure_filename(file.filename)
+        path = os.path.join('static', 'assets', 'pfps', filename)
+        file.save(path)
+        current_user.profile_pic = filename
+        db.session.commit()
+        return jsonify({'success': True, 'new_filename': filename})
+
+    return jsonify({'status': 'error', 'message': 'Invalid request'}), 400
+
+@app.route('/update-bio', methods=['POST'])
+@login_required
+def update_bio():
+    data = request.get_json()
+    bio = data.get('bio', '')
+    
+    current_user.bio = bio
+    db.session.commit()
+
+    return jsonify({'status': 'success'})
 
 @app.route("/login", methods = ['GET', 'POST'])
 def login():
@@ -153,7 +229,7 @@ def upload():
             url_data = urlparse(request.form['youtube-link'])
             query = parse_qs(url_data.query)
             video = query["v"][0]
-            db.session.add(FileEntry(author=request.form['author'], project_year=request.form['year'],
+            db.session.add(FileEntry(user_id=current_user.id, project_year=request.form['year'],
                                      project_month=request.form['month'], title=request.form['title'],
                                      description=request.form['description'].replace('\\n','<br/>'),
                                      filetype=request.form['filetype'], filename=video))
@@ -172,7 +248,7 @@ def upload():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            db.session.add(FileEntry(author=request.form['author'], project_year=request.form['year'],
+            db.session.add(FileEntry(user_id=current_user.id, project_year=request.form['year'],
                                      project_month=request.form['month'], title=request.form['title'],
                                      description=request.form['description'].replace('\\n','<br/>'),
                                      filetype=request.form['filetype'], filename=filename))
@@ -209,28 +285,28 @@ def approve(id):
 @login_required
 def postComment():
     db.session.add(
-        CommentEntry(author=current_user.username, text=request.form['text'], fileentry_id=request.form['postid']))
+        CommentEntry(user_id=current_user.id, text=request.form['text'], fileentry_id=request.form['postid']))
     db.session.commit()
     return "OK"
 
 
 @app.route('/comment/<int:id>', methods=['GET'])
 def listComment(id):
-    return jsonify([{'id': row.id, 'author': row.author, 'text': row.text, 'created_at': row.created_at} for row in
+    return jsonify([{'id': row.id, 'text': row.text, 'created_at': row.created_at} for row in
                     CommentEntry.query.filter(CommentEntry.fileentry_id == id)])
 
 
 @app.route('/dbjson')
 def dbjson():
     return jsonify(sorted([{'id': x.id, 'approved': x.approved, 'creation_date': x.created_at, 'project_year': x.project_year,
-                     'project_month': x.project_month, 'author': x.author, 'title': x.title,
+                     'project_month': x.project_month, 'title': x.title,
+                     'author': x.user.username if x.user else "Unknown",
                      'description': x.description, 'filetype': x.filetype, 'filename': x.filename} for x in FileEntry.query.all()], reverse=True, key=itemgetter('project_year', 'project_month')))
 
 
 @app.errorhandler(404)
 def lost(e):
     return render_template('lost.html')
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("RBSite App")

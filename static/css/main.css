@@ -279,12 +279,12 @@ body {
 video {
     max-width: 100%;
     max-height: 100%;
-    width: auto; 
-    height: auto; 
+    width: auto;
+    height: auto;
     display: block;
-    margin: auto; 
+    margin: auto;
     object-fit: contain;
-  }
+}
 
 .video-iframe {
     border: none;
@@ -322,19 +322,21 @@ video {
 }
 
 .fileInfo,
-.fileComments {
+.fileComments,
+.fileEdit {
     font-family: JetBrains Mono, monospace;
     font-size: 10px;
     color: #818181;
-    padding-right: 2.5px;
-    padding-left: 2.5px;
+    padding-right: 5px;
+    padding-left: 5px;
     height: 20px;
     display: flex;
     align-items: center;
 }
 
 .fileInfo:hover,
-.fileComments:hover {
+.fileComments:hover,
+.fileEdit:hover {
     background-color: #818181;
     color: white;
 }
