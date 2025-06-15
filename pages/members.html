@@ -83,15 +83,15 @@
         position: absolute;
         cursor: default;
         background-color: white;
-        width: 750px;
-        height: 500px;
+        width: 525px;
+        max-height: 650px;
         z-index: 15;
         box-shadow: -2px -2px #e0dede, -2px 0 #e0dede, 0 -2px #e0dede, -4px -4px white, -4px 0 white, 0 -4px white, 2px 2px #818181, 0 2px #818181, 2px 0 #818181, 2px -2px #e0dede, -2px 2px #818181, -4px 2px white, -4px 4px black, 4px 4px black, 4px 0 black, 0 4px black, 2px -4px white, 4px -4px black;
     }
 
     .folder-header {
         height: 20px;
-        width: 740px;
+        width: 515px;
         background: linear-gradient(90deg, #000b7c, #377cc6);
         float: left;
         display: flex;
@@ -107,6 +107,7 @@
 
     .folder-content {
         display: flex;
+        align-items: flex-start;
     }
 
     .folder-content-text {
@@ -133,28 +134,44 @@
     }
 
     .profile-gallery {
-        overflow-y: auto;
-        margin-top: 15px;
-        margin-left: 10px;
-        margin-right: 10px;
-        margin-bottom: 10px;
-        height: 300px;
-        width: 725px;
-        border: 2px solid #818181;
-        background: rgb(192, 192, 192);
-        float: left;
-        vertical-align: top;
-        ;
-        object-fit: contain;
         display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        margin: 10px;
+
+        border-top: 2.5px solid #818181;
+        background: rgb(255, 255, 255);
+
+        max-height: 450px;
     }
 
-    .profile-gallery p {
-        font-family: JetBrains Mono, monospace;
-        font-size: 12px;
-        color: black;
-        padding: 5px;
-        column-count: 2;
+    .profile-gallery>div {
+        width: 250px;
+        padding: 10px;
+        margin: 0 0 0 0;
+
+        background: transparent;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+    }
+
+    .profile-gallery video,
+    .profile-gallery img,
+    .profile-gallery iframe {
+        width: 250px;
+        height: auto;
+        padding: 10px;
+        margin: 0 0 0 0;
+
+        background: transparent;
+        box-sizing: border-box;
+        display: flex;
+        object-fit: contain;
+        justify-content: center;
     }
 
     /* User editing for folder window */
@@ -175,6 +192,7 @@
         border-radius: 50%;
         cursor: pointer;
         user-select: none;
+        z-index: 2;
     }
 
     #bioTextarea {
@@ -186,29 +204,20 @@
         resize: none;
     }
 
-    /* Scroll Bar */
-    ::-webkit-scrollbar {
-        width: 10px;
-    }
-
-    ::-webkit-scrollbar-track {
-        display: none;
-        background: rgb(165, 165, 165);
-        width: 15px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        background: #818181;
+    #bioTextarea:focus,
+    input:focus,
+    button:focus {
+        outline: 2px dashed #818181;
     }
 
     /* copied from feed.html */
     .modal {
         display: none;
-        margin-top: 32px;
+        padding-top: 32px;
         justify-content: center;
         object-fit: contain;
         position: fixed;
-        z-index: 1000;
+        z-index: 9999;
         left: 0;
         top: 0;
         width: 100%;
@@ -268,23 +277,114 @@
         justify-content: center;
         align-items: center;
         overflow: hidden;
+        height: 75%;
     }
 
     #post-content iframe {
         border: none;
         outline: none;
-        margin-top: 50px;
     }
 
     .modal-content {
-        display: block;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         object-fit: contain;
-        max-height: 600px;
-        margin-bottom: 20px;
+        max-height: 75vh;
     }
 
     body.modal-open {
         overflow: hidden;
+    }
+
+
+    /* Audio Player Styles */
+    .audio_panel_Members {
+        pointer-events: auto;
+        height: 100%;
+        width: auto;
+        background-color: transparent;
+    }
+
+    .audioContainerMembers {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 600px;
+        width: 100%;
+    }
+
+    .audioControlsMembers {
+        position: absolute;
+        width: 610px;
+        aspect-ratio: 305 / 45;
+        height: auto;
+        background-color: #909090;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        box-shadow: -1.5px -1.5px #e0dede, -1.5px 0 #e0dede, 0 -1.5px #e0dede, -3px -3px white, -3px 0 white, 0 -3px white, 1.5px 1.5px #818181, 0 1.5px #818181, 1.5px 0 #818181, 1.5px -1.5px #e0dede, -1.5px 1.5px #818181, -3px 1.5px white, -3px 3px black, 3px 3px black, 3px 0 black, 0 3px black, 1.5px -3px white, 3px -3px black;
+    }
+
+    .reverse-buttonMembers,
+    .forward-buttonMembers,
+    .play-pause-buttonMembers {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0;
+        border: none;
+        background: #e0dede;
+        height: 32px;
+        width: 32px;
+        box-shadow: -2px -2px #e0dede, -2px 0 #e0dede, 0 -2px #e0dede, -4px -4px white, -4px 0 white, 0 -4px white, 2px 2px #818181, 0 2px #818181, 2px 0 #818181, 2px -2px #e0dede, -2px 2px #818181, -4px 2px white, -4px 4px black, 4px 4px black, 4px 0 black, 0 4px black, 2px -4px white, 4px -4px black;
+    }
+
+    .reverse-buttonMembers:active,
+    .forward-buttonMembers:active,
+    .play-pause-buttonMembers:active {
+        box-shadow: -2px -2px #818181, -2px 0 #818181, 0 -2px #818181, -4px -4px black, -4px 0 black, 0 -4px black, 2px 2px #e0dede, 0 2px #e0dede, 2px 0 #e0dede, 2px -2px #818181, -2px 2px #e0dede, -4px 2px black, -4px 4px white, 4px 4px white, 4px 0 white, 0 4px white, 2px -4px black, 4px -4px white;
+    }
+
+    .audioScreenMembers {
+        display: flex;
+        align-items: center;
+        justify-content: right;
+        padding-right: 10px;
+        width: 425px;
+        height: 50px;
+        border-top: 2px solid #818181;
+        border-bottom: 2px solid white;
+        border-right: 2px solid white;
+        border-left: 2px solid #818181;
+        background-color: #1f0ec3;
+        color: white;
+        font-size: 25px;
+        font-family: 'Chicago';
+    }
+
+    .visualizerMembers {
+        position: absolute;
+        transform: translate(30px, -8px);
+    }
+
+    .pauseMembers {
+        display: flex;
+        justify-content: space-between;
+        gap: 4px;
+        align-items: center;
+        width: 15px;
+        height: 8px;
+        transform: translate(-0.5px, -0.5px);
+    }
+
+    .pauseMembers div {
+        width: 10px;
+        height: 16px;
+        background-color: #000;
     }
 </style>
 
@@ -337,18 +437,25 @@
         if (openFolders.has(username)) {
             return;
         }
-        openFolders.add(username); 
+        openFolders.add(username);
 
         fetch(`/user-files/${username}`)
             .then(response => response.json())
-            .then(files => {
+            .then(data => {
+                const files = data.files;
+                const bio = data.bio || "";
                 const folder = document.createElement('div');
                 const isOwnProfile = username === currentUser;
                 folder.className = 'folder-window';
-                folder.style.top = `20vh`;
+                folder.style.top = `15vh`;
                 folder.style.left = `25vw`;
                 folder.style.zIndex = ++zIndexCounter;
-                
+
+                // After setting folder.style.zIndex = ++zIndexCounter;
+                if (zIndexCounter > 500) {
+                    normalizeFolderZIndexes();
+                }
+
                 folder.innerHTML = `
                 <div class="folder-header">
                     <span>${username}</span>
@@ -372,18 +479,18 @@
                     <div class="pfp-container">
                         <img src="/static/assets/pfps/${isOwnProfile ? currentUserProfilePic : 'default-pfp.png'}" class="pfp" id="pfp-${username}">
                         ${isOwnProfile ? `
-                        <div id="profileForm">
+                        <form id="profileForm" enctype="multipart/form-data">
                             <label for="profilePicInput" class="plus-button">+</label>
                             <input type="file" id="profilePicInput" name="profile_pic" accept="image/*" hidden>
-                        </div>
+                        </form>
                         ` : ''}
                     </div>
                     <div class="folder-content-text">
                         <p><strong>${username}</strong></p>
                         ${isOwnProfile ? `
-                            <textarea name="bio" id="bioTextarea" rows="4" cols="75">${userBio}</textarea><br>
+                            <textarea name="bio" id="bioTextarea" rows="4" cols="45">${bio}</textarea><br>
                         ` : `
-                            <p>${userBio}</p>
+                            <p>${bio}</p>
                         `}
                     </div>
                 </div>
@@ -438,20 +545,52 @@
                 const gallery = folder.querySelector('.profile-gallery');
 
                 files.forEach((post, index) => {
+                    const title = post.title || post.filename;
                     const wrapper = document.createElement('div');
-                    wrapper.style.display = 'inline-flex';
 
                     let media;
                     if (post.filetype === 'JPG' || post.filetype === 'PNG') {
                         media = document.createElement('img');
                         media.src = `/download/${post.filename}`;
-                        media.style.height = '284px';
-                        media.style.width = 'auto';
                     } else if (post.filetype === 'YT') {
                         media = document.createElement('img');
                         media.src = `http://img.youtube.com/vi/${post.filename}/mqdefault.jpg`;
-                        media.style.height = '284px';
-                        media.style.width = 'auto';
+                    } else if (post.filetype === 'MP3') {
+                        postContent = document.createElement("div");
+                        postContent.style.height = "200px";
+                        postContent.style.width = "100%";
+                        postContent.style.position = "relative";
+                        postContent.style.cursor = "pointer";
+                        postContent.style.backgroundColor = "white";
+                        postContent.onclick = () => {
+                            enlargePost(index);
+                        };
+
+                        const audioicon = document.createElement("img");
+                        audioicon.src = "{{ url_for('static', filename='assets/icons/audio icon.jpg') }}";
+                        audioicon.style.objectFit = "cover";
+                        postContent.appendChild(audioicon);
+
+                        const overlayText = document.createElement("div");
+                        overlayText.innerText = title;
+                        overlayText.style.textAlign = "center";
+                        overlayText.style.position = "absolute";
+                        overlayText.style.top = "48.5%";
+                        overlayText.style.left = "55%";
+                        overlayText.style.transform = "translate(-50%, -50%)";
+                        overlayText.style.fontFamily = "monospace";
+                        overlayText.style.fontSize = "11px";
+                        overlayText.style.color = "#ffffff";
+                        overlayText.style.pointerEvents = "none";
+
+                        postContent.appendChild(overlayText);
+
+                        media = postContent;
+                    } else if (post.filetype === 'MP4') {
+                        media = document.createElement('video');
+                        media.src = `/download/${post.filename}`;
+
+                        media.controls = false;
                     } else {
                         return;
                     }
@@ -471,17 +610,121 @@
                     const contentDiv = document.getElementById("post-content");
                     contentDiv.innerText = "";
                     let post = files[index];
-                    let filetype = parseInt(post.filetype);
+                    let filetype = post.filetype;
                     var postContent = null;
 
                     if (post.filetype === 'JPG' || post.filetype === 'PNG') {
                         postContent = document.createElement("img");
                         postContent.src = "download/" + post.filename;
+                    } else if (filetype === 'MP3') {
+                        postContent = document.createElement('div');
+                        postContent.classList.add('audio_panel_Members');
+                        postContent.innerHTML = `
+                            <audio src="download/${post.filename}" preload="metadata"></audio>
+                            <div class="audioContainerMembers">
+                                <div class="audioControlsMembers">
+                                    <button class="reverse-buttonMembers">
+                                        <div class="play" style="transform: scale(2) translateX(-4.5px) rotate(180deg);"></div>
+                                        <div class="play" style="transform: scale(2) translateX(1.5px) rotate(180deg);"></div>
+                                    </button>
+                                    <button class="play-pause-buttonMembers"><div class="play" style="transform: scale(1.8);""></div></button>
+                                    <button class="forward-buttonMembers">
+                                        <div class="play" style="transform: scale(2) translateX(2.5px);"></div>
+                                        <div class="play" style="transform: scale(2) translateX(-3.5px);"></div>
+                                    </button>
+                                    <canvas class="visualizerMembers"></canvas>
+                                    <div class="audioScreenMembers">0:00</div>
+                                </div>
+                            </div>
+                        `;
+
+                        const audio = postContent.querySelector('audio');
+                        const canvas = postContent.querySelector('.visualizerMembers');
+                        const playPauseButton = postContent.querySelector('.play-pause-buttonMembers');
+                        const reverseButton = postContent.querySelector('.reverse-buttonMembers');
+                        const forwardButton = postContent.querySelector('.forward-buttonMembers');
+                        const audioScreen = postContent.querySelector('.audioScreenMembers');
+
+                        // Canvas context and setup
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = 340;
+                        canvas.height = 45;
+
+                        const audioContext = new AudioContext();
+                        const analyser = audioContext.createAnalyser();
+                        const source = audioContext.createMediaElementSource(audio);
+                        source.connect(analyser);
+                        analyser.connect(audioContext.destination);
+                        analyser.fftSize = 256;
+                        const bufferLength = analyser.frequencyBinCount;
+                        const dataArray = new Uint8Array(bufferLength);
+
+                        function renderVisualizer() {
+                            requestAnimationFrame(renderVisualizer);
+                            analyser.getByteFrequencyData(dataArray);
+
+                            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas for next frame
+
+                            const barWidth = (canvas.width / bufferLength) * 4;
+                            let barHeight;
+                            let x = 0;
+
+                            const max = Math.max(...dataArray); // Find the maximum value in dataArray
+
+                            for (let i = 0; i < bufferLength; i++) {
+                                barHeight = (dataArray[i] / max) * canvas.height; // Normalize the bar height
+                                ctx.fillStyle = `white`;
+                                ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+                                x += barWidth + 1;
+                            }
+                        }
+
+                        // Add event listeners
+                        playPauseButton.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            if (audio.paused) {
+                                // Ensure AudioContext is resumed before playing audio
+                                if (audioContext.state === 'suspended') {
+                                    audioContext.resume();
+                                }
+
+                                audio.play();
+                                playPauseButton.innerHTML = `<div class="pauseMembers">
+                        <div></div>
+                        <div></div>
+                    </div>`;
+                                renderVisualizer(); // Start visualizer
+                            } else {
+                                audio.pause();
+                                playPauseButton.innerHTML = `<div class="play" style="transform: scale(2)"></div>`;
+                            }
+                        });
+
+                        reverseButton.addEventListener('mousedown', () => {
+                            audio.currentTime = Math.max(audio.currentTime - 5, 0);
+                        });
+
+                        forwardButton.addEventListener('mousedown', () => {
+                            audio.currentTime = Math.min(audio.currentTime + 5, audio.duration);
+                        });
+
+                        audio.addEventListener('timeupdate', () => {
+                            const mins = Math.floor(audio.currentTime / 60);
+                            const secs = Math.floor(audio.currentTime % 60);
+                            audioScreen.textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                        });
                     } else if (post.filetype === 'YT') {
                         postContent = document.createElement("iframe");
                         postContent.src = "https://www.youtube.com/embed/" + post.filename;
-                        postContent.height = 450;
-                        postContent.width = 800;
+                        postContent.height = '450px';
+                        postContent.width = '800px';
+                    } else if (post.filetype === 'MP4') {
+                        postContent = document.createElement("video");
+                        postContent.src = "download/" + post.filename;
+                        postContent.controls = true;
+                        postContent.autoplay = false;
+                        postContent.style.maxHeight = '450px';
+                        postContent.style.maxWidth = '800px';
                     } else {
                         console.warn("Unsupported filetype in preview:", filetype);
                         return;
@@ -503,7 +746,8 @@
                     document.body.classList.add("modal-open");
                 }
 
-                folder.addEventListener('mousedown', (e) => startDrag(e, folder));
+                const header = folder.querySelector('.folder-header');
+                header.addEventListener('mousedown', (e) => startDrag(e, folder));
                 document.body.appendChild(folder);
             })
             .catch(error => {
@@ -512,8 +756,19 @@
     }
 
     /* close post function */
+    document.getElementById('postPreviewModal').addEventListener('click', function (e) {
+        if (!e.target.closest('.modal-content')) {
+            closePost();
+        }
+    });
+
     function closePost() {
         const modal = document.getElementById("postPreviewModal");
+        const audio = modal.querySelector('audio');
+        if (audio) {
+            audio.pause();
+            audio.currentTime = 0;
+        }
         modal.style.display = "none";
         document.body.classList.remove("modal-open");
     }
@@ -547,6 +802,23 @@
 
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
+    }
+
+    function normalizeFolderZIndexes() {
+        const folders = Array.from(document.querySelectorAll('.folder-window'));
+        // Get current z-indexes and sort by z-index ascending
+        const sorted = folders
+            .map(f => ({ el: f, z: parseInt(f.style.zIndex) || 0 }))
+            .sort((a, b) => a.z - b.z);
+
+        // Set new base z-index
+        let base = 100;
+        sorted.forEach((item, i) => {
+            item.el.style.zIndex = base + i;
+        });
+
+        // Update global counter to the new highest value
+        zIndexCounter = base + sorted.length - 1;
     }
 </script>
 
