@@ -294,7 +294,9 @@ video {
 
 .image_panel img {
     width: 100%;
-    height: calc(100% - 41px);
+    max-height: calc(100% - 41px);
+    object-fit: contain;
+    background: #000;
 }
 
 .panelHeader {
