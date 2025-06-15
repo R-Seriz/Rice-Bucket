@@ -132,7 +132,9 @@ const CSSrenderer = new CSS3DRenderer();
 const controls = new OrbitControls(camera, CSSrenderer.domElement);
 const parent = document.getElementById("CSSRender");
 
-camera.position.z = 70;
+// Set initial camera position
+camera.position.z = 50;
+
 CSSrenderer.setSize(parent.offsetWidth, parent.offsetHeight);
 parent.appendChild(CSSrenderer.domElement);
 CSSrenderer.domElement.style.zIndex = 2;
@@ -364,14 +366,22 @@ function videoPanel(entry) {
 <div class="fileHeader">
     <div class="WhiteBar"></div>
     <div class="fileInfo" onmousedown="showInfoWindow('${entry['title']}', '${entry['author']}', ${entry['project_month']}, ${entry['project_year']}, '${entry['description']}')">Information</div>
-    <div class="fileComments" onmousedown="showCommentWindow(${entry[
-        'id']})">Comments</div>
+    <div class="fileComments" onmousedown="showCommentWindow(${entry['id']})">Comments</div>
 </div>
 <div class="videoContainer">
-    <video controls>
+    <video>
         <source src="download/${entry['filename']}" type="video/mp4">
     </video>
 </div>`;
+
+    const video = elem.querySelector('video');
+    elem.addEventListener('mouseenter', () => {
+        video.setAttribute('controls', 'controls');
+    });
+    elem.addEventListener('mouseleave', () => {
+        video.removeAttribute('controls');
+    });
+
     return elem;
 }
 
@@ -433,7 +443,7 @@ function setupScene() {
             for (let idx in db) {
                 if (!db[idx]['approved'] || db[idx]['project_year'] !== Number(year)) continue;
                 console.log(db[idx]);
-                if (db[idx]['filetype'] === 0 || db[idx]['filetype'] === '1') elems.push(imagePanel(db[idx]));
+                if (db[idx]['filetype'] === 0 || db[idx]['filetype'] === 1) elems.push(imagePanel(db[idx]));
                 if (db[idx]['filetype'] === 2) elems.push(audioPanel(db[idx]));
                 if (db[idx]['filetype'] === 3) elems.push(videoPanel(db[idx]));
                 if (db[idx]['filetype'] === 4) elems.push(ytPanel(db[idx]));
