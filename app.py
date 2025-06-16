@@ -57,7 +57,7 @@ class User(UserMixin, db.Model):
 
 class FileEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    
+
     title = db.Column(db.String(100), nullable=False)
     project_year = db.Column(db.Integer, nullable=False)
     project_month = db.Column(db.Integer, nullable=False)
@@ -77,15 +77,15 @@ class FileEntry(db.Model):
 
 class CommentEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    
+
     fileentry_id = db.Column(db.Integer, db.ForeignKey('file_entry.id'), nullable=False)
     fileentry = db.relationship('FileEntry', backref='comments')
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref='comments')
-    
+
     text = db.Column(db.String(500), nullable=False)
-    
+
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
     def __repr__(self):
@@ -120,7 +120,7 @@ def directory():
 def members():
     profile_pic = current_user.profile_pic or "default-pfp.png"
     bio = current_user.bio or "This user hasn't written a bio yet."
-    
+
     return render_template('members.html',
                            current_user=current_user,
                            currentUserProfilePic=profile_pic,
@@ -182,7 +182,7 @@ def update_profile():
 def update_bio():
     data = request.get_json()
     bio = data.get('bio', '')
-    
+
     current_user.bio = bio
     db.session.commit()
 
@@ -323,9 +323,11 @@ if __name__ == '__main__':
             db.session.add(new_user)
             db.session.commit()
     elif args.prod == 1:
+        cert = input("Certificate path: ")
+        key = input("Key path: ")
         from waitress import serve
 
         print("Started running production thing")
-        serve(app, host="0.0.0.0", port=80)
+        serve(app, host="0.0.0.0", port=80, url_scheme='https')
     elif args.prod == 0:
         app.run(debug=True, port=3000, host='0.0.0.0')
