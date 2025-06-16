@@ -133,18 +133,22 @@ def get_user_files(username):
         return jsonify({'error': 'User not found'}), 404
 
     filetype_map = {0: "JPG", 1: "PNG", 2: "MP3", 3: "MP4", 4: "YT"}
-    files = FileEntry.query.filter_by(user_id=user.id, approved=True).all()
-    return jsonify([
-        {
-            'title': f.title,
-            'description': f.description,
-            'filetype': filetype_map.get(f.filetype, f.filetype),
-            'filename': f.filename,
-            'project_year': f.project_year,
-            'project_month': f.project_month,
-            'author': username
-        } for f in files
-    ])
+    files = FileEntry.query.filter_by(user_id=user.id).all()
+    return jsonify({
+        'files': [
+            {
+                'title': f.title,
+                'description': f.description,
+                'filetype': filetype_map.get(f.filetype, f.filetype),
+                'filename': f.filename,
+                'project_year': f.project_year,
+                'project_month': f.project_month,
+                'author': username
+            } for f in files
+        ],
+        'bio': user.bio or "",
+        'profile_pic': user.profile_pic or "default-pfp.png"
+    })
 
 
 @app.route('/update-profile', methods=['POST'])

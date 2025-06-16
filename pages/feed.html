@@ -106,6 +106,10 @@
             margin-top: 50px;
         }
 
+        #post-content video {
+            margin-top: 50px;
+        }
+
         .modal-content {
             display: block;
             object-fit: contain;
@@ -124,6 +128,96 @@
             text-align: center;
             padding-top: 25px;
             padding-bottom: 15px;
+        }
+
+
+        /* Audio Player Styles */
+        .audio_panel_feed {
+            pointer-events: auto;
+            height: 100%;
+            width: auto;
+            background-color: transparent;
+        }
+
+        .audioContainerFeed {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 600px;
+            width: 100%;
+        }
+
+        .audioControlsFeed {
+            position: absolute;
+            width: 610px;      
+            aspect-ratio: 305 / 45;  
+            height: auto;      
+            background-color: #909090;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            box-shadow: -1.5px -1.5px #e0dede, -1.5px 0 #e0dede, 0 -1.5px #e0dede, -3px -3px white, -3px 0 white, 0 -3px white, 1.5px 1.5px #818181, 0 1.5px #818181, 1.5px 0 #818181, 1.5px -1.5px #e0dede, -1.5px 1.5px #818181, -3px 1.5px white, -3px 3px black, 3px 3px black, 3px 0 black, 0 3px black, 1.5px -3px white, 3px -3px black;
+        }
+
+        .reverse-buttonFeed,
+        .forward-buttonFeed,
+        .play-pause-buttonFeed {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0;
+            border: none;
+            background: #e0dede;
+            height: 32px;
+            width: 32px;
+            box-shadow: -2px -2px #e0dede, -2px 0 #e0dede, 0 -2px #e0dede, -4px -4px white, -4px 0 white, 0 -4px white, 2px 2px #818181, 0 2px #818181, 2px 0 #818181, 2px -2px #e0dede, -2px 2px #818181, -4px 2px white, -4px 4px black, 4px 4px black, 4px 0 black, 0 4px black, 2px -4px white, 4px -4px black;
+        }
+
+        .reverse-buttonFeed:active,
+        .forward-buttonFeed:active,
+        .play-pause-buttonFeed:active {
+            box-shadow: -2px -2px #818181, -2px 0 #818181, 0 -2px #818181, -4px -4px black, -4px 0 black, 0 -4px black, 2px 2px #e0dede, 0 2px #e0dede, 2px 0 #e0dede, 2px -2px #818181, -2px 2px #e0dede, -4px 2px black, -4px 4px white, 4px 4px white, 4px 0 white, 0 4px white, 2px -4px black, 4px -4px white;
+        }
+
+        .audioScreenFeed {
+            display: flex;
+            align-items: center;
+            justify-content: right;
+            padding-right: 10px;
+            width: 425px;
+            height: 50px;
+            border-top: 2px solid #818181;
+            border-bottom: 2px solid white;
+            border-right: 2px solid white;
+            border-left: 2px solid #818181;
+            background-color: #1f0ec3;
+            color: white;
+            font-size: 25px;
+            font-family: 'Chicago';
+        }
+
+        .visualizerFeed {
+            position: absolute;
+            transform: translate(30px, -8px);
+        }
+
+        .pauseFeed {
+            display: flex;
+            justify-content: space-between;
+            gap: 4px;
+            align-items: center;
+            width: 15px;
+            height: 8px;
+            transform: translate(-0.5px, -0.5px);
+        }
+
+        .pauseFeed div {
+            width: 10px;
+            height: 16px;
+            background-color: #000;
         }
     </style>
 </head>
@@ -146,7 +240,7 @@
         <div class="image-wrapper" id="imageGallery"></div>
     </div>
 
-    <div id="postPreviewModal" class="modal" onclick="closePost()">
+    <div id="postPreviewModal" class="modal">
         <div id="previewContainer">
             <div id="separator">
                 <div id="post-title">Hello world</div>
@@ -205,7 +299,7 @@
             postOuter.appendChild(postInner);
 
             var postContent;
-            
+
             if (filetype == 0 || filetype == 1) {
                 postContent = document.createElement("img");
                 postContent.src = "download/" + filename;
@@ -214,10 +308,48 @@
                 };
             }
             if (filetype == 2) {
-                return; // Skipping mp3s for now.
+                postContent = document.createElement("div");
+                postContent.style.height = "200px";
+                postContent.style.width = "100%";
+                postContent.style.position = "relative";
+                postContent.style.cursor = "pointer";
+                postContent.style.backgroundColor = "white";
+                postContent.onclick = () => {
+                    enlargePost(index);
+                };
+
+                const audioicon = document.createElement("img");
+                audioicon.src = "{{ url_for('static', filename='assets/icons/audio icon.jpg') }}";
+                audioicon.style.width = "100%";
+                audioicon.style.height = "100%";
+                audioicon.style.objectFit = "cover";
+                postContent.appendChild(audioicon);
+
+                const overlayText = document.createElement("div");
+                overlayText.innerText = title;
+                overlayText.style.position = "absolute";
+                overlayText.style.top = "50%";
+                overlayText.style.left = "50%";
+                overlayText.style.transform = "translate(-50%, -50%)";
+                overlayText.style.fontFamily = "monospace";
+                overlayText.style.fontSize = "16px";
+                overlayText.style.color = "#ffffff";
+                overlayText.style.pointerEvents = "none";
+
+                postContent.appendChild(overlayText);
             }
             if (filetype == 3) {
-                return; // Skipping mp4s for now.
+                postContent = document.createElement("video");
+                postContent.controls = false;
+
+                const source = document.createElement("source");
+                source.src = "download/" + filename;
+                source.type = "video/mp4";
+
+                postContent.appendChild(source);
+                postContent.onclick = () => {
+                    enlargePost(index);
+                };
             }
             if (filetype == 4) {
                 postContent = document.createElement("img");
@@ -236,7 +368,7 @@
         function enlargePost(index) {
             const modal = document.getElementById("postPreviewModal");
             const contentDiv = document.getElementById("post-content");
-            contentDiv.innerText = "";
+            contentDiv.innerHTML = "";
             let post = db[index];
             let filetype = parseInt(post.filetype);
             var postContent = null;
@@ -244,34 +376,153 @@
             if (filetype === 0 || filetype === 1) {
                 postContent = document.createElement("img");
                 postContent.src = "download/" + post.filename;
-            } else if (filetype === 4) {
-                postContent = document.createElement("iframe");
-                postContent.src = "https://www.youtube.com/embed/" + post.filename;
-                postContent.height = 450;
-                postContent.width = 800;
-            } else {
-                console.warn("Unsupported filetype in preview:", filetype);
-                return;
-            }
+            } else if (filetype === 2) {
+                postContent = document.createElement('div');
+                postContent.classList.add('audio_panel_feed');
+                postContent.innerHTML = `
+                    <audio src="download/${post.filename}" preload="metadata"></audio>
+                    <div class="audioContainerFeed">
+                        <div class="audioControlsFeed">
+                            <button class="reverse-buttonFeed">
+                                <div class="play" style="transform: scale(2) translateX(-4.5px) rotate(180deg);"></div>
+                                <div class="play" style="transform: scale(2) translateX(1.5px) rotate(180deg);"></div>
+                            </button>
+                            <button class="play-pause-buttonFeed"><div class="play" style="transform: scale(1.8);""></div></button>
+                            <button class="forward-buttonFeed">
+                                <div class="play" style="transform: scale(2) translateX(2.5px);"></div>
+                                <div class="play" style="transform: scale(2) translateX(-3.5px);"></div>
+                            </button>
+                            <canvas class="visualizerFeed"></canvas>
+                            <div class="audioScreenFeed">0:00</div>
+                        </div>
+                    </div>
+                `;
 
-            let months = [
-                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-            ];
+                const audio = postContent.querySelector('audio');
+                const canvas = postContent.querySelector('.visualizerFeed');
+                const playPauseButton = postContent.querySelector('.play-pause-buttonFeed');
+                const reverseButton = postContent.querySelector('.reverse-buttonFeed');
+                const forwardButton = postContent.querySelector('.forward-buttonFeed');
+                const audioScreen = postContent.querySelector('.audioScreenFeed');
 
-            document.getElementById("post-title").innerText = post.title;
-            document.getElementById("post-author").innerText = "by " + post.author;
-            document.getElementById("post-date").innerText = months[post.project_month - 1] + ", " + post.project_year;
-            document.getElementById("post-description").innerText = post.description;
+                // Canvas context and setup
+                const ctx = canvas.getContext('2d');
+                canvas.width = 340;
+                canvas.height = 45;
+
+                const audioContext = new AudioContext();
+                const analyser = audioContext.createAnalyser();
+                const source = audioContext.createMediaElementSource(audio);
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+
+                function renderVisualizer() {
+                    requestAnimationFrame(renderVisualizer);
+                    analyser.getByteFrequencyData(dataArray);
+
+                    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas for next frame
+
+                    const barWidth = (canvas.width / bufferLength) * 4;
+                    let barHeight;
+                    let x = 0;
+
+                    const max = Math.max(...dataArray); // Find the maximum value in dataArray
+
+                    for (let i = 0; i < bufferLength; i++) {
+                        barHeight = (dataArray[i] / max) * canvas.height; // Normalize the bar height
+                        ctx.fillStyle = `white`;
+                        ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+                        x += barWidth + 1;
+                    }
+                }
+
+                // Add event listeners
+                playPauseButton.addEventListener('mousedown', () => {
+                    if (audio.paused) {
+                        // Ensure AudioContext is resumed before playing audio
+                        if (audioContext.state === 'suspended') {
+                            audioContext.resume();
+                        }
+
+                        audio.play();
+                        playPauseButton.innerHTML = `<div class="pauseFeed">
+                <div></div>
+                <div></div>
+            </div>`;
+                        renderVisualizer(); // Start visualizer
+                    } else {
+                        audio.pause();
+                        playPauseButton.innerHTML = `<div class="play" style="transform: scale(2)"></div>`;
+                    }
+                });
+
+                reverseButton.addEventListener('mousedown', () => {
+                    audio.currentTime = Math.max(audio.currentTime - 5, 0);
+                });
+
+                forwardButton.addEventListener('mousedown', () => {
+                    audio.currentTime = Math.min(audio.currentTime + 5, audio.duration);
+                });
+
+                audio.addEventListener('timeupdate', () => {
+                    const mins = Math.floor(audio.currentTime / 60);
+                    const secs = Math.floor(audio.currentTime % 60);
+                    audioScreen.textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                });
+            } else if (filetype === 3) {
+                    postContent = document.createElement("video");
+                    postContent.src = "download/" + post.filename;
+                    postContent.controls = true;
+                    postContent.autoplay = false;
+                    postContent.style.maxHeight = '450px';
+                    postContent.style.maxWidth = '800px';
+        } else if (filetype === 4) {
+            postContent = document.createElement("iframe");
+            postContent.src = "https://www.youtube.com/embed/" + post.filename;
+            postContent.height = 450;
+            postContent.width = 800;
+        } else {
+            console.warn("Unsupported filetype in preview:", filetype);
+            return;
+        }
 
             postContent.classList.add("modal-content");
             contentDiv.appendChild(postContent);
             modal.style.display = "flex";
             document.body.classList.add("modal-open");
+
+        let months = [
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        ];
+
+        document.getElementById("post-title").innerText = post.title;
+        document.getElementById("post-author").innerText = "by " + post.author;
+        document.getElementById("post-date").innerText = months[post.project_month - 1] + ", " + post.project_year;
+        document.getElementById("post-description").innerText = post.description;
+
+        postContent.classList.add("modal-content");
+        contentDiv.appendChild(postContent);
+        modal.style.display = "flex";
+        document.body.classList.add("modal-open");
         }
+
+        document.getElementById('postPreviewModal').addEventListener('click', function(e) {
+            if (!e.target.closest('.modal-content')) {
+                closePost();
+            }
+        });
 
         function closePost() {
             const modal = document.getElementById("postPreviewModal");
+            const audio = modal.querySelector('audio');
+            if (audio) {
+                audio.pause();
+                audio.currentTime = 0;
+            }
             modal.style.display = "none";
             document.body.classList.remove("modal-open");
         }
