@@ -323,8 +323,6 @@ if __name__ == '__main__':
             db.session.add(new_user)
             db.session.commit()
     elif args.prod == 1:
-        cert = input("Certificate path: ")
-        key = input("Key path: ")
         from waitress import serve
 
         print("Started running production thing")
