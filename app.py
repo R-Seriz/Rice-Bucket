@@ -316,7 +316,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser("RBSite App")
     parser.add_argument("prod", help="An integer specifying to run in production (1 for yes, 0 for no)", type=int)
     args = parser.parse_args()
-    if args.prod == 2:
+    if args.prod == 3:
+        with app.app_context():
+            users = User.query.all()
+            for i, user in enumerate(users):
+                print(f'{user.id}: {user.username}')
+            target = int(input("id to delete: "))
+            db.session.delete(db.session.get(User, target))
+            db.session.commit()
+
+    elif args.prod == 2:
         with app.app_context():
             db.create_all()
             new_user = User(username=input("Enter username: "), email=input("Enter email: "), password=input("Enter password: "))
