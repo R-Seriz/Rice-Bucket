@@ -296,7 +296,7 @@ def postComment():
 
 @app.route('/comment/<int:id>', methods=['GET'])
 def listComment(id):
-    return jsonify([{'id': row.id, 'text': row.text, 'created_at': row.created_at} for row in
+    return jsonify([{'id': row.id, 'text': row.text, 'author':row.user.username, 'created_at': row.created_at} for row in
                     CommentEntry.query.filter(CommentEntry.fileentry_id == id)])
 
 
