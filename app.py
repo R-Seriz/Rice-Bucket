@@ -1,11 +1,11 @@
 import os
 import argparse
-import hashlib
 from urllib.parse import urlparse, parse_qs
 from operator import itemgetter
 
 from flask import Flask, flash, redirect, render_template, request, jsonify, url_for, send_from_directory, make_response
 from werkzeug.utils import secure_filename
+from werkzeug.security import check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 from flask_login import (
@@ -202,9 +202,9 @@ def login():
         if not user_query:
             return "No such username", 400
 
-        if user_query.password != password:
+        if not check_password_hash(user_query.password, password):
             return "Wrong password", 400
-
+        
         login_user(user_query)
 
         return redirect(url_for('home'))
