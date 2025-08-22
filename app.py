@@ -314,7 +314,7 @@ def lost(e):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("RBSite App")
-    parser.add_argument("prod", help="An integer specifying to run in production (1 for yes, 0 for no)", type=int)
+    parser.add_argument("prod", nargs='?', help="An integer specifying to run in production (1 for yes, 0 for no)", type=int, default=None)
     args = parser.parse_args()
     if args.prod == 3:
         with app.app_context():
@@ -334,7 +334,13 @@ if __name__ == '__main__':
     elif args.prod == 1:
         from waitress import serve
 
-        print("Started running production thing")
+        print("Running in production mode.")
         serve(app, host="0.0.0.0", port=80, url_scheme='https')
     elif args.prod == 0:
         app.run(debug=True, port=3000, host='0.0.0.0')
+    elif args.prod == None:
+        # Assume running in production mode by default
+        from waitress import serve
+
+        print("Running in production mode.")
+        serve(app, host="0.0.0.0", port=80, url_scheme='https')
