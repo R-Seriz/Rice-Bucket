@@ -314,7 +314,7 @@ def lost(e):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("RBSite App")
-    parser.add_argument("prod", help="An integer specifying to run in production (1 for yes, 0 for no)", type=int)
+    parser.add_argument("prod", nargs='?', help="An integer specifying to run in production (1 for yes, 0 for no)", type=int, default=None)
     args = parser.parse_args()
     if args.prod == 3:
         with app.app_context():
@@ -331,10 +331,11 @@ if __name__ == '__main__':
             new_user = User(username=input("Enter username: "), email=input("Enter email: "), password=input("Enter password: "))
             db.session.add(new_user)
             db.session.commit()
-    elif args.prod == 1:
+    elif args.prod == 1 or args.prod == None:
+        # Running in production mode is the default
         from waitress import serve
 
-        print("Started running production thing")
+        print("Running in production mode.")
         serve(app, host="0.0.0.0", port=80, url_scheme='https')
     elif args.prod == 0:
         app.run(debug=True, port=3000, host='0.0.0.0')
