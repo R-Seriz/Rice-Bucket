@@ -8,7 +8,7 @@
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon_io/favicon.ico') }}" />
 </head>
 
-<body>
+<body onload="randomizePadding()">    
     <div class="navbar">
         <a href="{{ url_for('home') }}" style="text-decoration: none">Home</a>
         <a class="active" href="{{ url_for('about') }}" style="text-decoration: none">About</a>
@@ -30,136 +30,156 @@
     <div class="container">
         <div class="sectionheader">About</div>
         <div id="about">
-            <div class="p-text">
-                Rice Bucket started from an unserious thought during high school
-                when I felt inspired by the passionate creators who were also close and
-                dear friends of mine. The name was something Kai and I came
-                up with.<br /><br />
-
-                The basic idea was to form a close-knit group of companions
-                who would work together as creatives to produce works across
-                a blend of mediums. Or, something like that.
-                <br /><br />
-
-                And we're still here. Welcome to Rice Bucket.<br /><br />
-
-                - Rui
+            <div class="p-text" style="padding-left: 30px;">
+                A collection of art, music, and video created by the members of the Rice Bucket community.<br><br>
             </div>
-        </div>
-
-        <div class="sectionheader">Links</div>
-        <div id="links">
-            <div class="p-text">
+            <img style="width: 25vw; margin-left: 70px; margin-top: 25px;" src="static/assets/log/about1.JPG">
+            <img style="width: 20vw; margin-left: 50px; margin-bottom: 30px;" src="static/assets/log/about2.JPG">
+            <img style="width: 18vw; margin-left: 380px; margin-top: 35px;" src="static/assets/log/about3.JPG">
+            <div class="p-text" style="text-align: right; padding-right: 125px;">
+                <br><br>
                 <a href="https://www.instagram.com/ricebucket.official" class="instagram-link"
-                    style="text-decoration: none; color: black" target="_blank">Instagram</a>
-                <br />
+                    style="text-decoration: none; color: black" target="_blank">IG</a>
+                    
                 <a href="https://www.youtube.com/@ricebucket.official" class="youtube-link"
-                    style="text-decoration: none; color: black" target="_blank">Youtube</a>
+                    style="text-decoration: none; color: black" target="_blank">YT</a>
             </div>
-        </div>
+        </div>        
 
         <div class="sectionheader">Log</div>
-
         <table id="log_table">
             <tr>
-                <td>06 13 2025</td>
-                <td>Reflection by Niko Sano</td>
+                <td>08 22 2025</td>
+                <td>
+                    <div class="log" style="text-decoration: none; cursor: default;">Brayden and Rui relaunch ricebucket.tech</div>
+                    <div class="log-info"></div>
+                </td>
             </tr>            
+            <tr>
+                <td>06 17 2025</td>
+                <td>
+                    <div class="log" onclick="togglelog('tech1')">Rui and Kian launch ricebucket.tech to the Rice Bucket community</div>
+                    <div id="tech1" class="log-info">
+                        <iframe width="756px" height="425.25px" src="https://www.youtube.com/embed/zkAZkLd3bSY?si=tL5NGy1pNju4rbCA" title="YouTube video player"
+                        frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen></iframe>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>06 13 2025</td>
+                <td>
+                    <div class="log" onclick="togglelog('reflection')">Niko hosts her first photography exhibit: <strong>Reflection</strong></div>
+                    <div id="reflection" class="log-info">
+                        <img style="width: 30vw" src="static/assets/log/niko reflection.png"> 
+                    </div>
+                </td>
+            </tr>      
             <tr>
                 <td>05 01 2025</td>
                 <td>
-                    <a href="https://youtube.com/playlist?list=OLAK5uy_mm9U0vui9RUlRqMM-_GQsctOCm2Kp0W8k&si=1Uc_jviWJSanZHCj"
-                        target="_blank" style="text-decoration: none; color: black">Clover</a>
-                    by Lila Anais
+                    <div class="log" onclick="togglelog('clover')">Lila's <strong>Clover</strong> EP out</div>
+                    <div id="clover" class="log-info">
+                        <img style="width: 30vw" src="static/assets/log/clover.JPG">
+                    </div>    
+                </td>
+            </tr>
+            <tr>
+                <td>12 20 2024</td>
+                <td>
+                    <div class="log" onclick="togglelog('tech1')">Rui and Kian make progress on ricebucket.tech</div>
+                    <div id="tech1" class="log-info">
+                        
+                    </div>
                 </td>
             </tr>
             <tr>
                 <td>06 15 2024</td>
-                <td>Hosted by R.S.</td>
+                <td>
+                    <div class="log" onclick="togglelog('rui1')">Rui invites Rice Bucket members to meet his grandmother</div>
+                    <div id="rui1" class="log-info">
+                        <img style="width: 30vw" src="static/assets/log/rui1.JPG">
+                    </div>
+                </td>
             </tr>
             <tr>
                 <td>05 28 2024</td>
-                <td>Undiscovered by Erika Kasuga</td>
+                <td>
+                    <div class="log" onclick="togglelog('undiscovered')">Erika presents her second exhibit: <strong>Undiscovered</strong></div>
+                    <div id="undiscovered" class="log-info">
+                        <img style="width: 30vw" src="static/assets/log/undiscovered.jpg">
+                    </div>
+                </td>
             </tr>
             <tr>
                 <td>03 14 2024</td>
                 <td>
-                    <a href="https://youtu.be/izJjTB8Vjls?si=UVTuHT0K9sVlvFvB" target="_blank"
-                        style="text-decoration: none; color: black">Krystals Vol. 1</a>
-                    by kai
+                    <div class="log" onclick="togglelog('krystals')">Kai releases <strong>krystals vol. 1</strong> mixtape</div>
+                    <div id="krystals" class="log-info">
+                        <img style="width: 30vw" src="static/assets/log/krystals.PNG">
+                    </div>
                 </td>
             </tr>
             <tr>
                 <td>02 11 2024</td>
-                <td>Rice Bucket Dinner</td>
+                <td>
+                    <div class="log" style="text-decoration: none; cursor: default;">The third Rice Bucket dinner is held</div>
+                    <div class="log-info"></div>
+                </td>
             </tr>
             <tr>
                 <td>01 04 2024</td>
-                <td>Hosted by S.K.P.</td>
+                <td>
+                    <div class="log" onclick="togglelog('skp1')">Shaun hosts Rice Bucket members at his home</div>
+                    <div id="skp1" class="log-info">
+                        <img style="width: 30vw" src="static/assets/log/skp1.JPG">
+                    </div>
+                </td>
             </tr>
             <tr>
                 <td>06 17 2023</td>
-                <td>Rice Bucket Dinner</td>
+                <td>
+                    <div class="log" style="text-decoration: none; cursor: default;">The second Rice Bucket dinner is held</div>
+                    <div class="log-info"></div>
+                </td>
             </tr>
             <tr>
                 <td>01 06 2023</td>
                 <td>
-                    <a href="https://youtu.be/5ok298U3164" target="_blank"
-                        style="text-decoration: none; color: black">Half Past Sleep</a>
+                    <div class="log" onclick="togglelog('halfpastsleep')">Rice Bucket members collaborate on <strong>Half Past Sleep</strong></div>
+                    <div id="halfpastsleep" class="log-info">
+                        <iframe width="756px" height="425.25px" src="https://www.youtube.com/embed/5ok298U3164" title="YouTube video player"
+                        frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen></iframe>
                 </td>
             </tr>
             <tr>
                 <td>11 24 2022</td>
-                <td>Rice Bucket Dinner</td>
+                <td>
+                    <div class="log" style="text-decoration: none; cursor: default;">The first Rice Bucket dinner is held</div>
+                    <div class="log-info"></div>
+                </td>
+            </tr>
+            <tr>
+                <td>11 15 2022</td>
+                <td>
+                    <div class="log" onclick="togglelog('logo')">The Rice Bucket logo appears for the first time</div>
+                    <div id="logo" class="log-info">
+                        <img style="width: 30vw" src="static/assets/log/firstlogo.png">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>-- -- 2022</td>
+                <td>
+                    <div class="log" style="text-decoration: none; cursor: default;">Rice Bucket begins.</div>
+                    <div class="log-info"></div>
+                </td>
             </tr>
         </table>
-
-        <div class="sectionheader">Photo Album</div>
-        <div class="image-wrapper" id="imageGallery">
-            {% for path in family_photos %}
-            <div class="responsive">
-                <div class="gallery">
-                    <a>
-                        <img src="{{ url_for('static', filename='assets/family/' + path) }}" alt="{{ path }}"
-                            onclick="enlarge_img(this)" />
-                    </a>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <div id="imagePreviewModal" class="modal" onclick="close_img()">
-        <img class="modal-content" id="previewImg" />
-    </div>
 </body>
 
 <style>
-    td a:hover {
-        text-decoration: underline !important;
-    }
-
-    .gallery {
-        break-inside: avoid;
-    }
-
-    div.gallery img {
-        width: 100%;
-        height: auto;
-        display: inline-block;
-    }
-
-    .image-wrapper {
-        padding: 5px;
-        column-count: 3;
-        column-gap: 2px;
-    }
-
-    .responsive {
-        width: auto;
-        padding: 5px;
-    }
-
     .clearfix:after {
         content: "";
         display: table;
@@ -174,8 +194,31 @@
             monospace;
     }
 
+    #log_table td {
+        vertical-align: top;
+    }
+
     #log_table td:nth-child(1) {
         width: 150px;
+    }
+
+    .log:hover {
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    .log-info {
+        margin: 5px;
+        font-size: 14px;
+        max-height: 0;
+        overflow: hidden;
+        display: block;
+    }
+
+    .log-info.open {
+        max-height: 1000px;
+        padding: 40px 0px;
+        transition: max-height 0.5s ease-in-out;
     }
 
     #about {
@@ -190,47 +233,20 @@
     a.instagram-link:hover {
         text-decoration: underline !important;
     }
-
-    .modal {
-        display: none;
-        margin-top: 32px;
-        align-items: center;
-        position: fixed;
-        z-index: 1005;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        background-color: rgba(0, 0, 0, 0.6);
-    }
-
-    .modal-content {
-        margin: auto;
-        display: block;
-        max-width: 80%;
-        max-height: 80%;
-    }
-
-    body.modal-open {
-        overflow: hidden;
-    }
 </style>
 
 <script>
-    function enlarge_img(imgElement) {
-        const modal = document.getElementById("imagePreviewModal");
-        const modalImg = document.getElementById("previewImg");
-        modalImg.src = imgElement.src;
-        modal.style.display = "flex";
-        document.body.classList.add("modal-open");
+    function togglelog(id) {
+        const el = document.getElementById(id);
+        el.classList.toggle('open');
     }
 
-    function close_img() {
-        const modal = document.getElementById("imagePreviewModal");
-        modal.style.display = "none";
-        document.body.classList.remove("modal-open");
+    function randomizePadding() {
+        const elements = document.querySelectorAll('.log-info');
+        elements.forEach(el => {
+            const randomPadding = Math.floor(Math.random() * 15) + 2;
+            el.style.paddingLeft = randomPadding + 'vw';
+        });
     }
 </script>
-
 </html>
