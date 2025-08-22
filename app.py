@@ -5,7 +5,7 @@ from operator import itemgetter
 
 from flask import Flask, flash, redirect, render_template, request, jsonify, url_for, send_from_directory, make_response
 from werkzeug.utils import secure_filename
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 from flask_login import (
@@ -328,7 +328,7 @@ if __name__ == '__main__':
     elif args.prod == 2:
         with app.app_context():
             db.create_all()
-            new_user = User(username=input("Enter username: "), email=input("Enter email: "), password=input("Enter password: "))
+            new_user = User(username=input("Enter username: "), email=input("Enter email: "), password=generate_password_hash(input("Enter password: "), method='scrypt'))
             db.session.add(new_user)
             db.session.commit()
     elif args.prod == 1 or args.prod == None:
