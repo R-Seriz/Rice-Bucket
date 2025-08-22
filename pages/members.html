@@ -562,6 +562,7 @@
                 .then((data) => {
                     const files = data.files;
                     const bio = data.bio || "";
+                    const pfp = data.profile_pic;
                     const folder = document.createElement("div");
                     const isOwnProfile = username === currentUser;
                     folder.className = "folder-window";
@@ -595,7 +596,7 @@
                 </div>
                 <div class="folder-content">
                     <div class="pfp-container">
-                        <img src="/static/assets/pfps/${isOwnProfile ? currentUserProfilePic : "default-pfp.png"}" class="pfp" id="pfp-${username}">
+                        <img src="/static/assets/pfps/${pfp}" class="pfp" id="pfp-${username}">
                         ${
                             isOwnProfile
                                 ? `
