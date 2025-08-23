@@ -336,6 +336,6 @@ if __name__ == '__main__':
         from waitress import serve
 
         print("Running in production mode.")
-        serve(app, host="0.0.0.0", port=80, url_scheme='https', max_request_body_size=15 * 1024 * 1024)
+        serve(app, host="0.0.0.0", port=80, url_scheme='https', max_request_body_size=15 * 1024 * 1024) #Max file size 15MB
     elif args.prod == 0:
         app.run(debug=True, port=3000, host='0.0.0.0')
